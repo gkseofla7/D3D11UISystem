@@ -23,6 +23,8 @@
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="DragDropButton.cpp" />
+    <ClCompile Include="MultipleModel.cpp" />
+    <ClCompile Include="Actor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppBase.h" />
@@ -42,6 +44,8 @@
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="DragDropButton.h" />
+    <ClInclude Include="MultipleModel.h" />
+    <ClInclude Include="Actor.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

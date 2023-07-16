@@ -133,6 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="D3D11Utils.cpp" />
     <ClCompile Include="DragDropButton.cpp" />
     <ClCompile Include="ExampleApp.cpp" />
@@ -145,9 +146,11 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="MultipleModel.cpp" />
     <ClCompile Include="PostProcess.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor.h" />
     <ClInclude Include="ConstantBuffers.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="D3D11Utils.h" />
@@ -163,6 +166,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelInstance.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="MultipleModel.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>

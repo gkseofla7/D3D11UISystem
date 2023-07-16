@@ -28,6 +28,11 @@ __declspec(align(256)) struct MeshConstants {
     Vector2 dummy;
 };
 
+
+__declspec(align(256)) struct ActorConstants {
+    Matrix world;
+};
+
 // 주로 Pixel 쉐이더에서 사용
 __declspec(align(256)) struct MaterialConstants {
 

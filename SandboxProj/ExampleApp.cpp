@@ -68,64 +68,74 @@ bool ExampleApp::Initialize() {
         const float offset = 0.1;
         const float squareLength = 0.1f;
         const int squareNum = 4;
-       
         
-        float uiX = m_uiMaxX - m_uiMinX;
-        float uiY = m_uiMaxY - m_uiMinY;
-        float xSquareDist = (uiX - 2.0f * offset) / (squareNum);
-       
-        
-        Vector3 Pos = Vector3(0.f, 0.f, 0.f);
-        MeshData meshData = GeometryGenerator::MakeSquare();
-        meshData.vertices[0].position = Vector3(
-            Pos.x - squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
-        meshData.vertices[1].position = Vector3(
-            Pos.x - squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
-        meshData.vertices[2].position = Vector3(
-            Pos.x + squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
-        meshData.vertices[3].position = Vector3(
-            Pos.x + squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
-        meshData.albedoTextureFilename = /*"../Assets/Textures/UITexture.jpg";*/
-            "../Assets/Textures/PBR/older-wood-flooring-ue/"
-            "older-wood-flooring_roughness.png";
-        m_uiButtons = 
-            make_shared<DragDropButton>(m_device, m_context, vector{meshData});
-
-        m_uiButtons->CreateConstBuffers(m_device, squareNum);
-
-        startPos.x = startPos.x + offset + xSquareDist / 2.f;
-        for (int i = 0; i < squareNum; i++) {
-            // TODO 하나의 Vertex를 가지고 재사용했어야 했는데 잘못 설계..ㅎ
-            Vector3 Pos = startPos;
-            Pos.x += +xSquareDist * i;
-            m_uiButtons->m_buttonConstsCPU[i].buttonLength = squareLength;
-            m_uiButtons->m_buttonConstsCPU[i].screenPos = Vector2(Pos.x, Pos.y);
-            //MeshData meshData = GeometryGenerator::MakeSquare();
-            //meshData.vertices[0].position = Vector3(
-            //    Pos.x - squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
-            //meshData.vertices[1].position = Vector3(
-            //    Pos.x - squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
-            //meshData.vertices[2].position = Vector3(
-            //    Pos.x + squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
-            //meshData.vertices[3].position = Vector3(
-            //    Pos.x + squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
-            //meshData
-            //    .albedoTextureFilename = /*"../Assets/Textures/UITexture.jpg";*/
-            //    "../Assets/Textures/PBR/older-wood-flooring-ue/"
-            //    "older-wood-flooring_roughness.png";
-
-
-        }
-        m_uiButtons->UpdateConstantBuffers(m_device, m_context);
         {
-            Vector3 Pos = Vector3(0.f, 0.f, 0.f); 
-            m_dragdropButton = make_shared<DragDropButton>(m_device, m_context,
-                                                           vector{meshData});
-            m_dragdropButton->CreateConstBuffers(m_device, 1);
-            m_dragdropButton->m_buttonConstsCPU[0].screenPos =
-                Vector2(Pos.x, Pos.y);
-            m_dragdropButton->m_buttonConstsCPU[0].buttonLength = squareLength;
+            float uiX = m_uiMaxX - m_uiMinX;
+            float uiY = m_uiMaxY - m_uiMinY;
+            float xSquareDist = (uiX - 2.0f * offset) / (squareNum);
+            Vector3 Pos = Vector3(0.f, 0.f, 0.f);
+            MeshData meshData = GeometryGenerator::MakeSquare();
+            meshData.vertices[0].position = Vector3(
+                Pos.x - squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
+            meshData.vertices[1].position = Vector3(
+                Pos.x - squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
+            meshData.vertices[2].position = Vector3(
+                Pos.x + squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
+            meshData.vertices[3].position = Vector3(
+                Pos.x + squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
+            meshData
+                .albedoTextureFilename = /*"../Assets/Textures/UITexture.jpg";*/
+                "../Assets/Textures/PBR/older-wood-flooring-ue/"
+                "older-wood-flooring_roughness.png";
+            m_uiButton =
+                make_shared<Model>(m_device, m_context, vector{meshData});
+
+            for (int i = 0; i < squareNum; i++) {
+                shared_ptr<DragDropButton> uiButton =
+                    make_shared<DragDropButton>(m_device, m_context,
+                                                m_uiButton);
+                m_uiButtons.push_back(uiButton);
+            }
+
+            startPos.x = startPos.x + offset + xSquareDist / 2.f;
+            for (int i = 0; i < squareNum; i++) {
+                Vector3 Pos = startPos;
+                Pos.x += +xSquareDist * i;
+                m_uiButtons[i]->m_buttonConstsCPU.buttonLength = squareLength;
+                m_uiButtons[i]->m_buttonConstsCPU.screenPos =
+                    Vector2(Pos.x, Pos.y);
+                m_uiButtons[i]->UpdateConstantBuffers(m_device, m_context);
+            }
         }
+
+
+        {
+            vector<MeshData> meshData = {
+                GeometryGenerator::MakeSphere(0.4f, 50, 50)};
+            m_square = make_shared<Model>(m_device, m_context, meshData);
+            m_square->m_materialConstsCPU.invertNormalMapY =
+                true; // GLTF는 true로
+            m_square->m_materialConstsCPU.albedoFactor = Vector3(1.0f);
+            m_square->m_materialConstsCPU.roughnessFactor = 0.3f;
+            m_square->m_materialConstsCPU.metallicFactor = 0.8f;
+            // 아싸리 Model을
+            for (int i = 0; i < squareNum; i++) {
+
+                shared_ptr<Actor> actor =
+                    make_shared<Actor>(m_device, m_context, m_square);
+                m_dynamicActors.push_back(actor);
+            }
+        }
+        {
+            Vector3 Pos = Vector3(0.f, 0.f, 0.f);
+            m_dragdropButton =
+                make_shared<DragDropButton>(m_device, m_context, m_uiButton);
+            m_dragdropButton->m_buttonConstsCPU.screenPos =
+                Vector2(Pos.x, Pos.y);
+            m_dragdropButton->m_buttonConstsCPU.buttonLength = squareLength;
+            m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
+        }
+
 
     }
 
@@ -407,28 +417,47 @@ void ExampleApp::Update(float dt) {
                 //Button이 아직 선택 안돼있으면
                  if (m_selectIndex == -1) 
                  {
-                        m_selectIndex = m_uiButtons->GetCursorInButtonIndex(
-                            m_cursorNdcX, m_cursorNdcY);
+                    for (int i = 0; i < m_uiButtons.size(); i++) {
+                        if (m_uiButtons[i]->IsCursorInButton(m_cursorNdcX, m_cursorNdcY)) {
+                            m_selectIndex = i;
+                        }
+                    }
 
                  }
+                 
                  //선택했는데 이제 막 선택한거라면
                  if (m_selectIndex != -1 && m_dragdropButton->m_isVisible==false) {
-                        m_dragdropButton->m_buttonConstsCPU[0].screenPos =
-                            m_uiButtons->m_buttonConstsCPU[m_selectIndex]
+                     //Button에 경우엔 스크린 좌표로 위치가 결정돼서 별도의 ConstBuffer 존재
+                        m_dragdropButton->m_buttonConstsCPU.screenPos =
+                        m_uiButtons[m_selectIndex]
+                            ->m_buttonConstsCPU
                                 .screenPos;
                     m_dragdropButton->m_isVisible = true;
                  } 
                  else if (m_dragdropButton->m_isVisible) {
-                    m_dragdropButton->m_buttonConstsCPU[0].screenPos =
+                    m_dragdropButton->m_buttonConstsCPU.screenPos =
                         Vector2(m_cursorNdcX, m_cursorNdcY);
                  }
             } 
             else {//범위 밖에 나가면
-                 m_dragdropButton->m_isVisible = false;
+                 if (m_dragdropButton->m_isVisible) {
+                    m_dragdropButton->m_isVisible = false;
+                    
+                    //Todo
+                    //m_dynamicObjs[m_selectIndex]->AddMeshConstBuffers(m_device);
+                    //int meshConstsIndex =
+                    //    m_dynamicObjs[m_selectIndex]->m_meshConstsCPUs.size() -
+                    //    1;
+                    //m_dynamicObjs[m_selectIndex]
+                    //    ->m_meshConstsCPUs[meshConstsIndex].world;
+                 }
+                 
+                 if (m_selectIndex!= -1) {
+                 //아직 선택돼있는 상태
 
-
+                 }
             }
-    } 
+    }
     else {
             m_dragdropButton->m_isVisible = false;
             m_selectIndex = -1;
@@ -438,6 +467,7 @@ void ExampleApp::Update(float dt) {
     for (auto &i : m_basicList) {
         i->UpdateConstantBuffers(m_device, m_context);
     }
+   
 }
 
 void ExampleApp::Render() {
@@ -602,7 +632,9 @@ void ExampleApp::Render() {
     m_uiSquare->Render(m_context);
 
     AppBase::SetPipelineState(Graphics::uiButtonPSO);
-    m_uiButtons->Render(m_context);
+    for (int i = 0; i < m_uiButtons.size(); i++) {
+        m_uiButtons[i]->Render(m_context);
+    }
     m_dragdropButton->Render(m_context);
 }
 

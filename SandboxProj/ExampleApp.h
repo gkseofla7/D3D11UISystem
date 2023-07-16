@@ -10,6 +10,9 @@
 #include "ImageFilter.h"
 #include "Model.h"
 #include "DragDropButton.h"
+#include "Actor.h"
+
+
 namespace hlab {
 
 using DirectX::BoundingSphere;
@@ -34,7 +37,13 @@ class ExampleApp : public AppBase {
     shared_ptr<Model> m_cursorSphere;
     shared_ptr<Model> m_screenSquare;
     shared_ptr<Model> m_uiSquare;
-    shared_ptr<DragDropButton> m_uiButtons;
+    shared_ptr<Model> m_uiButton;
+
+
+    shared_ptr<Model> m_square;
+
+    vector<shared_ptr<Actor>> m_dynamicActors;
+    vector<shared_ptr<DragDropButton>> m_uiButtons;
     shared_ptr<DragDropButton> m_dragdropButton;
 
     BoundingSphere m_mainBoundingSphere;
