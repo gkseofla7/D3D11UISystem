@@ -507,7 +507,7 @@ bool AppBase::InitDirect3D() {
 
     UINT createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
-    createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
     const D3D_FEATURE_LEVEL featureLevels[2] = {
@@ -657,6 +657,10 @@ void AppBase::CreateBuffers() {
     // FLOAT MSAA를 Relsolve해서 저장할 SRV/RTV
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
+
+
+    //여기까지
+
     ThrowIfFailed(m_device->CreateTexture2D(&desc, NULL,
                                             m_resolvedBuffer.GetAddressOf()));
     ThrowIfFailed(m_device->CreateTexture2D(
@@ -671,10 +675,28 @@ void AppBase::CreateBuffers() {
         m_postEffectsBuffer.Get(), NULL, m_postEffectsRTV.GetAddressOf()));
 
     CreateDepthBuffers();
-
     m_postProcess.Initialize(m_device, m_context, {m_postEffectsSRV},
                              {m_backBufferRTV}, m_screenWidth, m_screenHeight,
                              4);
+
+        // Todo 여기서부터 수정
+    // 1x1 작은 스테이징 텍스춰 만들기
+    desc.BindFlags = 0;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.Width = 1;
+    desc.Height = 1;
+
+    ThrowIfFailed(m_device->CreateTexture2D(
+        &desc, NULL, m_indexStagingBuffer.GetAddressOf()));
+    // 마우스 피킹에 사용할 인덱스 색을 렌더링할 텍스춰와 렌더타겟 생성
+    backBuffer->GetDesc(&desc); // BackBuffer와 동일한 설정
+    ThrowIfFailed(m_device->CreateTexture2D(&desc, nullptr,
+                                            m_indexBuffer.GetAddressOf()));
+    ThrowIfFailed(m_device->CreateRenderTargetView(m_indexBuffer.Get(), nullptr,
+                                                   m_indexRTV.GetAddressOf()));
+
+  
 }
 
 } // namespace hlab

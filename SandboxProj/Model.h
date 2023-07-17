@@ -33,7 +33,7 @@ class Model {
 
     void RenderNormals(ComPtr<ID3D11DeviceContext> &context);
 
-    void UpdateWorldRow(const Matrix &worldRow);
+    //void UpdateWorldRow(const Matrix &worldRow);
 
   public:
     Matrix m_worldRow = Matrix();   // Model(Object) To World 행렬
@@ -42,9 +42,8 @@ class Model {
     MeshConstants m_meshConstsCPU;
     MaterialConstants m_materialConstsCPU;
 
-    bool m_drawNormals = false;
     bool m_isVisible = true;
-    bool m_castShadow = true;
+    //bool m_castShadow = true;
 
     std::vector<shared_ptr<Mesh>> m_meshes;
 

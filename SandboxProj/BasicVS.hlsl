@@ -5,11 +5,19 @@ Texture2D g_heightTexture : register(t0);
 
 cbuffer MeshConstants : register(b0)
 {
-    matrix world; // Model(또는 Object) 좌표계 -> World로 변환
-    matrix worldIT; // World의 InverseTranspose
+    //matrix world; // Model(또는 Object) 좌표계 -> World로 변환
+    //matrix worldIT; // World의 InverseTranspose
     int useHeightMap;
     float heightScale;
     float2 dummy;
+};
+
+cbuffer ActorConstants : register(b10)
+{
+    matrix world; // Model(또는 Object) 좌표계 -> World로 변환
+    matrix worldIT;
+    float3 indexColor;
+    float dummy3;
 };
 
 PixelShaderInput main(VertexShaderInput input)

@@ -32,16 +32,23 @@ class ExampleApp : public AppBase {
   protected:
     shared_ptr<Model> m_ground;
     shared_ptr<Model> m_mainObj;
-    shared_ptr<Model> m_lightSphere[MAX_LIGHTS];
+    
     shared_ptr<Model> m_skybox;
-    shared_ptr<Model> m_cursorSphere;
+    shared_ptr<Model> m_cursorSphereModel;
     shared_ptr<Model> m_screenSquare;
     shared_ptr<Model> m_uiSquare;
     shared_ptr<Model> m_uiButton;
-
-
+    shared_ptr<Model> m_lightSphereModel;
+    
+    shared_ptr<Model> m_sphere;
     shared_ptr<Model> m_square;
 
+    shared_ptr<Actor> m_lightSphere[MAX_LIGHTS];
+    shared_ptr<Actor> m_mainActor;
+    shared_ptr<Actor> m_groundActor;
+    shared_ptr<Actor> m_mirrorActor;
+    shared_ptr<Actor> m_cursorSphere;
+    
     vector<shared_ptr<Actor>> m_dynamicActors;
     vector<shared_ptr<DragDropButton>> m_uiButtons;
     shared_ptr<DragDropButton> m_dragdropButton;
@@ -56,7 +63,7 @@ class ExampleApp : public AppBase {
     float m_mirrorAlpha = 1.0f; // Opacity
 
     // 거울이 아닌 물체들의 리스트 (for문으로 그리기 위함)
-    vector<shared_ptr<Model>> m_basicList;
+    vector<shared_ptr<Actor>> m_basicList;
 
     float m_uiMaxX = 0.f;
     float m_uiMinX = 0.f;

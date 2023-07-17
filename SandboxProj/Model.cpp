@@ -27,10 +27,6 @@ void Model::Initialize(ComPtr<ID3D11Device> &device,
 void Model::Initialize(ComPtr<ID3D11Device> &device,
                        ComPtr<ID3D11DeviceContext> &context,
                        const std::vector<MeshData> &meshes) {
-
-    // ConstantBuffer ¸¸µé±â
-    m_meshConstsCPU.world = Matrix();
-
     D3D11Utils::CreateConstBuffer(device, m_meshConstsCPU, m_meshConstsGPU);
     D3D11Utils::CreateConstBuffer(device, m_materialConstsCPU,
                                   m_materialConstsGPU);
@@ -153,14 +149,14 @@ void Model::RenderNormals(ComPtr<ID3D11DeviceContext> &context) {
     }
 }
 
-void Model::UpdateWorldRow(const Matrix &worldRow) {
-    this->m_worldRow = worldRow;
-    this->m_worldITRow = worldRow;
-    m_worldITRow.Translation(Vector3(0.0f));
-    m_worldITRow = m_worldITRow.Invert().Transpose();
-
-    m_meshConstsCPU.world = worldRow.Transpose();
-    m_meshConstsCPU.worldIT = m_worldITRow.Transpose();
-}
+//void Model::UpdateWorldRow(const Matrix &worldRow) {
+//    this->m_worldRow = worldRow;
+//    this->m_worldITRow = worldRow;
+//    m_worldITRow.Translation(Vector3(0.0f));
+//    m_worldITRow = m_worldITRow.Invert().Transpose();
+//
+//    m_meshConstsCPU.world = worldRow.Transpose();
+//    m_meshConstsCPU.worldIT = m_worldITRow.Transpose();
+//}
 
 } // namespace hlab

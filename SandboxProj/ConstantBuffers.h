@@ -21,8 +21,8 @@ using DirectX::SimpleMath::Vector3;
 
 // 주로 Vertex/Geometry 쉐이더에서 사용
 __declspec(align(256)) struct MeshConstants {
-    Matrix world;
-    Matrix worldIT;
+    //Matrix world;
+    //Matrix worldIT;
     int useHeightMap = 0;
     float heightScale = 0.0f;
     Vector2 dummy;
@@ -31,6 +31,9 @@ __declspec(align(256)) struct MeshConstants {
 
 __declspec(align(256)) struct ActorConstants {
     Matrix world;
+    Matrix worldIT;
+    Vector3 indexColor;
+    float dummy;
 };
 
 // 주로 Pixel 쉐이더에서 사용

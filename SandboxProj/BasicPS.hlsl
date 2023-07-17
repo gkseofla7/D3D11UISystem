@@ -29,6 +29,14 @@ cbuffer MaterialConstants : register(b0)
     float dummy;
 };
 
+cbuffer ActorConstants : register(b10)
+{
+    matrix world; // Model(또는 Object) 좌표계 -> World로 변환
+    matrix worldIT;
+    float3 indexColor;
+    float dummy3;
+};
+
 float3 SchlickFresnel(float3 F0, float NdotH)
 {
     return F0 + (1.0 - F0) * pow(2.0, (-5.55473 * NdotH - 6.98316) * NdotH);
@@ -38,6 +46,7 @@ float3 SchlickFresnel(float3 F0, float NdotH)
 struct PixelShaderOutput
 {
     float4 pixelColor : SV_Target0;
+    float4 indexColor : SV_Target1;
 };
 
 float3 GetNormal(PixelShaderInput input)
@@ -342,6 +351,7 @@ PixelShaderOutput main(PixelShaderInput input)
     PixelShaderOutput output;
     output.pixelColor = float4(ambientLighting + directLighting + emission, 1.0);
     output.pixelColor = clamp(output.pixelColor, 0.0, 1000.0);
-    
+    output.indexColor = float4(indexColor, 1.0);
+
     return output;
 }

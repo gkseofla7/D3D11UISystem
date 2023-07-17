@@ -86,6 +86,11 @@ class AppBase {
     ComPtr<ID3D11ShaderResourceView> m_resolvedSRV;
     ComPtr<ID3D11ShaderResourceView> m_postEffectsSRV;
 
+    ComPtr<ID3D11Texture2D> m_indexBuffer;
+    ComPtr<ID3D11RenderTargetView> m_indexRTV;
+    ComPtr<ID3D11Texture2D> m_indexStagingBuffer; // 1x1 작은 크기
+
+
     // Depth buffer 관련
     ComPtr<ID3D11Texture2D> m_depthOnlyBuffer; // No MSAA
     ComPtr<ID3D11DepthStencilView> m_depthOnlyDSV;

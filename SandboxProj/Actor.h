@@ -15,12 +15,17 @@ class Actor {
                             shared_ptr<Model> &model);
     virtual void UpdateConstantBuffers(ComPtr<ID3D11Device> &device,
                                ComPtr<ID3D11DeviceContext> &context);
-
+    void UpdateWorldRow(const Matrix &worldRow);
     virtual void Render(ComPtr<ID3D11DeviceContext> &context); 
+    void RenderNormals(ComPtr<ID3D11DeviceContext> &context);
   public:
    shared_ptr<Model> m_model;
+  //MeshConstants ¿Ãµø
+
   ActorConstants m_actorConstsCPU;
-   bool m_isVisible = true;
+  bool m_isVisible = true;
+  bool m_castShadow = true;
+  bool m_drawNormals = false;
 
 private:
   ComPtr < ID3D11Buffer > m_actorConstsGPU;
