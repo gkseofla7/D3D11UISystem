@@ -28,7 +28,7 @@ namespace hlab {
             context->PSSetConstantBuffers(10, 1,
                                           m_actorConstsGPU.GetAddressOf());
             m_model->Render(context);
-        }
+        } 
     }
 
     void Actor::UpdateWorldRow(const Matrix &worldRow) {

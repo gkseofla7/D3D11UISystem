@@ -659,7 +659,6 @@ void AppBase::CreateBuffers() {
     desc.SampleDesc.Quality = 0;
 
 
-    //여기까지
 
     ThrowIfFailed(m_device->CreateTexture2D(&desc, NULL,
                                             m_resolvedBuffer.GetAddressOf()));
@@ -691,6 +690,19 @@ void AppBase::CreateBuffers() {
         &desc, NULL, m_indexStagingBuffer.GetAddressOf()));
     // 마우스 피킹에 사용할 인덱스 색을 렌더링할 텍스춰와 렌더타겟 생성
     backBuffer->GetDesc(&desc); // BackBuffer와 동일한 설정
+    //음..//
+    //desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+    desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+    desc.Usage = D3D11_USAGE_DEFAULT; // 스테이징 텍스춰로부터 복사 가능
+    desc.CPUAccessFlags = 0;
+    if (m_useMSAA && m_numQualityLevels) {
+        desc.SampleDesc.Count = 4;
+        desc.SampleDesc.Quality = m_numQualityLevels - 1;
+    } else {
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+    }
+
     ThrowIfFailed(m_device->CreateTexture2D(&desc, nullptr,
                                             m_indexBuffer.GetAddressOf()));
     ThrowIfFailed(m_device->CreateRenderTargetView(m_indexBuffer.Get(), nullptr,

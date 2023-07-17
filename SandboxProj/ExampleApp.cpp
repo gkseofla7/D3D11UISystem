@@ -8,7 +8,7 @@
 #include "DragDropButton.h"
 #include "GeometryGenerator.h"
 #include "GraphicsCommon.h"
-
+//
 namespace hlab {
 
 using namespace std;
@@ -323,6 +323,7 @@ bool ExampleApp::Initialize() {
         m_cursorSphere =
             make_shared<Actor>(m_device, m_context, m_cursorSphereModel);
         m_cursorSphere->m_castShadow = false;  // 그림자 X
+        m_cursorSphere->m_isVisible = false;  // 그림자 X
         m_basicList.push_back(m_cursorSphere); // 리스트에 등록
     }
 
@@ -444,7 +445,7 @@ void ExampleApp::Update(float dt) {
     } else {
         m_cursorSphere->m_isVisible = false;
     }
-
+    //
     if (m_leftButton) {
        //UI 내에서만 DragDropButton 보이게
             if (m_cursorNdcX <= m_uiMaxX && m_cursorNdcX >= m_uiMinX &&
@@ -511,7 +512,6 @@ void ExampleApp::Update(float dt) {
 }
 
 void ExampleApp::Render() {
-
     AppBase::SetMainViewport();
 
     // 모든 샘플러들을 공통으로 사용 (뒤에서 더 추가됩니다.)
@@ -529,8 +529,7 @@ void ExampleApp::Render() {
 
     const float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     vector<ID3D11RenderTargetView *> rtvs = {m_floatRTV.Get(),
-                                             m_indexRTV.Get()};
-
+                                             m_indexRTV.Get()};    
     // Depth Only Pass (RTS 생략 가능)
     m_context->OMSetRenderTargets(0, NULL, m_depthOnlyDSV.Get());
     m_context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH,
@@ -540,9 +539,9 @@ void ExampleApp::Render() {
     //basicList 모두 Actor로 변경필요..ㅎ
     for (auto &i : m_basicList)
         i->Render(m_context);
-    
+    //
     m_skybox->Render(m_context);
-    m_mirror->Render(m_context);
+    //m_mirror->Render(m_context);
 
     // 그림자맵 만들기
     AppBase::SetShadowViewport(); // 그림자맵 해상도
@@ -558,20 +557,20 @@ void ExampleApp::Render() {
                 if (i->m_castShadow && i->m_isVisible)
                     i->Render(m_context);
             m_skybox->Render(m_context);
-            m_mirror->Render(m_context);
+            //m_mirror->Render(m_context);
         }
     }
 
     // 다시 렌더링 해상도로 되돌리기
     AppBase::SetMainViewport();
-
+    //
     // 거울 1. 거울은 빼고 원래 대로 그리기
     for (size_t i = 0; i < rtvs.size(); i++) {
         m_context->ClearRenderTargetView(rtvs[i], clearColor);
     }
     m_context->OMSetRenderTargets(UINT(rtvs.size()), rtvs.data(),
                                   m_depthStencilView.Get());
-
+    
     // 그림자맵들도 공용 텍스춰들 이후에 추가
     // 주의: 마지막 shadowDSV를 RenderTarget에서 해제한 후 설정
     vector<ID3D11ShaderResourceView *> shadowSRVs;
@@ -593,8 +592,8 @@ void ExampleApp::Render() {
     }
 
     // 거울 반사를 그릴 필요가 없으면 불투명 거울만 그리기
-    if (m_mirrorAlpha == 1.0f)
-        m_mirror->Render(m_context);
+    //if (m_mirrorAlpha == 1.0f)
+    //    m_mirror->Render(m_context);
 
     AppBase::SetPipelineState(Graphics::normalsPSO);
     for (auto &i : m_basicList) {
@@ -612,7 +611,7 @@ void ExampleApp::Render() {
         // 거울 2. 거울 위치만 StencilBuffer에 1로 표기
         AppBase::SetPipelineState(Graphics::stencilMaskPSO);
 
-        m_mirror->Render(m_context);
+        //m_mirror->Render(m_context);
 
         // 거울 3. 거울 위치에 반사된 물체들을 렌더링
         AppBase::SetPipelineState(m_drawAsWire ? Graphics::reflectWirePSO
@@ -636,7 +635,7 @@ void ExampleApp::Render() {
                                                : Graphics::mirrorBlendSolidPSO);
         AppBase::SetGlobalConsts(m_globalConstsGPU);
 
-        m_mirror->Render(m_context);
+        //m_mirror->Render(m_context);
 
     } // end of if (m_mirrorAlpha < 1.0f)
 
