@@ -361,7 +361,8 @@ void AppBase::SetPipelineState(const GraphicsPSO &pso) {
     m_context->IASetPrimitiveTopology(pso.m_primitiveTopology);
 }
 
-bool AppBase::UpdateMouseControl(const BoundingSphere &bs, Quaternion &q,
+bool AppBase::UpdateMouseControlTranslate(const BoundingSphere &bs,
+                                 const DirectX::BoundingBox &bsq,
                                  Vector3 &dragTranslation, Vector3 &pickPoint) {
 
     const Matrix viewRow = m_camera.GetViewRow();
@@ -372,12 +373,87 @@ bool AppBase::UpdateMouseControl(const BoundingSphere &bs, Quaternion &q,
     static Vector3 prevPos(0.0f);
     static Vector3 prevVector(0.0f);
 
-    // 회전과 이동 초기화
-    q = Quaternion::CreateFromAxisAngle(Vector3(1.0f, 0.0f, 0.0f), 0.0f);
+    // 이동 초기화
     dragTranslation = Vector3(0.0f);
 
+
+    if (m_leftButton) { 
+        //마우스가 Ground에 있을때, 없을때!
+        Vector3 cursorNdcNear = Vector3(m_cursorNdcX, m_cursorNdcY, 0.0f);
+        Vector3 cursorNdcFar = Vector3(m_cursorNdcX, m_cursorNdcY, 1.0f);
+
+        // NDC 커서 위치를 월드 좌표계로 역변환 해주는 행렬
+        Matrix inverseProjView = (viewRow * projRow).Invert();
+
+        // ViewFrustum 안에서 PickingRay의 방향 구하기
+        Vector3 cursorWorldNear =
+            Vector3::Transform(cursorNdcNear, inverseProjView);
+        Vector3 cursorWorldFar =
+            Vector3::Transform(cursorNdcFar, inverseProjView);
+        Vector3 dir = cursorWorldFar - cursorWorldNear;
+        dir.Normalize();
+        // 광선을 만들고 충돌 감지
+        SimpleMath::Ray curRay = SimpleMath::Ray(cursorWorldNear, dir);
+
+        float dist = 0.0f;
+        float groundDist = 0.0f;
+        if (curRay.Intersects(bs, dist)) {//내 물체가 Ray에 맞을경우
+            if (curRay.Intersects(bsq, groundDist)) {
+                pickPoint = cursorWorldNear + groundDist * dir;
+
+                if (m_dragStartFlag) { // 드래그를 시작하는 경우
+                    m_dragStartFlag = false;
+                    
+                    prevPos = pickPoint;
+                } else {
+                    Vector3 newPos = pickPoint;
+                    if ((newPos - prevPos).Length() > 1e-3) {
+                        dragTranslation = newPos - prevPos;
+                        prevPos = newPos;
+                    }
+
+                }
+            } else {
+                pickPoint = cursorWorldNear + dist * dir;
+                if (m_dragStartFlag) { // 드래그를 시작하는 경우
+                    m_dragStartFlag = false;
+                    prevRatio =
+                        dist / (cursorWorldFar - cursorWorldNear).Length();
+                    prevPos = pickPoint;
+                } else {
+                    Vector3 newPos =
+                        cursorWorldNear +
+                        prevRatio * (cursorWorldFar - cursorWorldNear);
+                    if ((newPos - prevPos).Length() > 1e-3) {
+                        dragTranslation = newPos - prevPos;
+                        prevPos = newPos;
+                    }
+                }
+            }
+
+
+            return true; // selected
+        }
+    }
+
+    return false;
+}
+
+bool AppBase::UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
+    Vector3& pickPoint) {
+    const Matrix viewRow = m_camera.GetViewRow();
+    const Matrix projRow = m_camera.GetProjRow();
+
+    // mainSphere의 회전 계산용
+    static float prevRatio = 0.0f;
+    static Vector3 prevPos(0.0f);
+    static Vector3 prevVector(0.0f);
+
+    // 회전 초기화
+    q = Quaternion::CreateFromAxisAngle(Vector3(1.0f, 0.0f, 0.0f), 0.0f);
+
     // 마우스 왼쪽 버튼으로 회전
-    if (m_leftButton) {
+    if (m_rightButton) {
 
         // ViewFrustum에서 가까운 면 위의 커서 위치
         // ViewFrustum에서 먼 면 위의 커서 위치
@@ -421,47 +497,7 @@ bool AppBase::UpdateMouseControl(const BoundingSphere &bs, Quaternion &q,
             return true; // selected
         }
     }
-
-    if (m_rightButton) {
-        Vector3 cursorNdcNear = Vector3(m_cursorNdcX, m_cursorNdcY, 0.0f);
-        Vector3 cursorNdcFar = Vector3(m_cursorNdcX, m_cursorNdcY, 1.0f);
-
-        // NDC 커서 위치를 월드 좌표계로 역변환 해주는 행렬
-        Matrix inverseProjView = (viewRow * projRow).Invert();
-
-        // ViewFrustum 안에서 PickingRay의 방향 구하기
-        Vector3 cursorWorldNear =
-            Vector3::Transform(cursorNdcNear, inverseProjView);
-        Vector3 cursorWorldFar =
-            Vector3::Transform(cursorNdcFar, inverseProjView);
-        Vector3 dir = cursorWorldFar - cursorWorldNear;
-        dir.Normalize();
-
-        // 광선을 만들고 충돌 감지
-        SimpleMath::Ray curRay = SimpleMath::Ray(cursorWorldNear, dir);
-        float dist = 0.0f;
-        if (curRay.Intersects(bs, dist)) {
-            pickPoint = cursorWorldNear + dist * dir;
-            if (m_dragStartFlag) { // 드래그를 시작하는 경우
-                m_dragStartFlag = false;
-                prevRatio = dist / (cursorWorldFar - cursorWorldNear).Length();
-                prevPos = pickPoint;
-            } else {
-                Vector3 newPos = cursorWorldNear +
-                                 prevRatio * (cursorWorldFar - cursorWorldNear);
-                if ((newPos - prevPos).Length() > 1e-3) {
-                    dragTranslation = newPos - prevPos;
-                    prevPos = newPos;
-                }
-            }
-
-            return true; // selected
-        }
     }
-
-    return false;
-}
-
 bool AppBase::InitMainWindow() {
 
     WNDCLASSEX wc = {sizeof(WNDCLASSEX),

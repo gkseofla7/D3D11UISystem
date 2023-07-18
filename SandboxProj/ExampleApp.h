@@ -48,12 +48,15 @@ class ExampleApp : public AppBase {
     shared_ptr<Actor> m_groundActor;
     shared_ptr<Actor> m_mirrorActor;
     shared_ptr<Actor> m_cursorSphere;
+
+    shared_ptr<Actor> m_selectedActor;
     
     vector<shared_ptr<Actor>> m_dynamicActors;
     vector<shared_ptr<DragDropButton>> m_uiButtons;
     shared_ptr<DragDropButton> m_dragdropButton;
 
     BoundingSphere m_mainBoundingSphere;
+    DirectX::BoundingBox m_groundBoundingBox;
 
     bool m_usePerspectiveProjection = true;
 

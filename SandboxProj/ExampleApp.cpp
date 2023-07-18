@@ -13,6 +13,7 @@
 #include <inttypes.h>
 
 typedef uint16_t HALF;
+#define EPSILON_VALUE 0.000001
 
 /* ----- prototypes ------ */
 float HALFToFloat(HALF);
@@ -98,6 +99,8 @@ HALF static floatToHalfI(uint32_t i) {
     }
 }
 
+
+bool cmpf(float A, float B) { return (fabs(A - B) < EPSILON_VALUE); }
 
 
 namespace hlab {
@@ -349,6 +352,10 @@ bool ExampleApp::Initialize() {
                 SimpleMath::Plane(position, Vector3(0.0f, 1.0f, 0.0f));
             m_mirrorActor = m_groundActor; // 바닥에 거울처럼 반사 구현
 
+            m_groundBoundingBox =
+                DirectX::BoundingBox(
+                position, Vector3(5.0f, 5.0f, 1.0f));
+
             // m_basicList.push_back(m_ground); // 거울은 리스트에 등록 X
         }
         {
@@ -519,11 +526,12 @@ void ExampleApp::Update(float dt) {
             Matrix::CreateTranslation(m_globalConstsCPU.lights[i].position));
 
     // 마우스 이동/회전 반영
-    if (m_leftButton || m_rightButton) {
+    // Todo 회전에 경우엔 특정 버튼을 눌렀을 경우에만 ,R로 설정
+    if (m_rightButton) {//회전인 경우만
         Quaternion q;
         Vector3 dragTranslation;
         Vector3 pickPoint;
-        if (UpdateMouseControl(m_mainBoundingSphere, q, dragTranslation,
+        if (UpdateMouseControlRotate(m_mainBoundingSphere, q,
                                pickPoint)) {
             Vector3 translation = m_mainObj->m_worldRow.Translation();
             m_mainObj->m_worldRow.Translation(Vector3(0.0f));
@@ -603,6 +611,59 @@ void ExampleApp::Update(float dt) {
             m_selectButtonIndex = -1;
     }
     m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
+
+
+    if (m_leftButton) {
+            Vector3 pickColor = Vector3();
+            pickColor.x = HALFToFloat(m_pickColor[0]);
+            pickColor.y = HALFToFloat(m_pickColor[1]);
+            pickColor.z = HALFToFloat(m_pickColor[2]);
+
+        //이제 막 Pick 했을 경우
+            if (m_selectedActor.get() == nullptr && pickColor.Length()>0.01f) {
+                 for (int i = 0; i < m_basicList.size(); i++) {
+                    Vector3 color = m_basicList[i]->m_actorConstsCPU.indexColor;
+                    if (cmpf(color.x ,pickColor.x) &&
+                              cmpf(color.y, pickColor.y) && cmpf(color.z ,pickColor.z)) {
+                        m_selectedActor = m_basicList[i];
+                        break;
+                    }
+                 }
+            }
+             if (m_selectedActor.get() != nullptr ) {
+                //Ground Ray 쏴서 그 지점에
+
+                 if (m_leftButton) { // 이동
+                    Vector3 dragTranslation;
+                    Vector3 pickPoint;
+                    if (UpdateMouseControlTranslate(
+                            m_selectedActor->m_boundingSphere, m_groundBoundingBox,
+                            dragTranslation, pickPoint)) {
+                        Vector3 translation =
+                            m_selectedActor->m_actorConstsCPU.world.Translation();
+                        m_selectedActor->m_actorConstsCPU.world.Translation(
+                            Vector3(0.0f));
+                        m_selectedActor->UpdateWorldRow(
+                            m_selectedActor->m_actorConstsCPU.world *
+                            Matrix::CreateTranslation(dragTranslation +
+                                                      translation));
+                        m_selectedActor->m_boundingSphere.Center =
+                            m_selectedActor->m_actorConstsCPU.world.Translation();
+
+                        // 충돌 지점에 작은 구 그리기
+                        //Todo 현재 이동은 안그리기로
+                        // 각 Actor에 Bounding Sphere 넣어줘야됨, 
+                        //m_cursorSphere->m_isVisible = true;
+                        //m_cursorSphere->UpdateWorldRow(
+                        //    Matrix::CreateTranslation(pickPoint));
+                    } else {
+                       // m_cursorSphere->m_isVisible = false;
+                    }
+                 } else {
+                    //m_cursorSphere->m_isVisible = false;
+                 }
+             }
+    }
 
     for (auto &i : m_basicList) {
         i->UpdateConstantBuffers(m_device, m_context);

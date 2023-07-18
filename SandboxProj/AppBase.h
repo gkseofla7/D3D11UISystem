@@ -48,8 +48,10 @@ class AppBase {
 
     void CreateDepthBuffers();
     void SetPipelineState(const GraphicsPSO &pso);
-    bool UpdateMouseControl(const BoundingSphere &bs, Quaternion &q,
+    bool UpdateMouseControlTranslate(const BoundingSphere &bs, const DirectX::BoundingBox &bsq, 
                             Vector3 &dragTranslation, Vector3 &pickPoint);
+    bool UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
+                             Vector3 &pickPoint);
 
   protected: // 상속 받은 클래스에서도 접근 가능
     bool InitMainWindow();

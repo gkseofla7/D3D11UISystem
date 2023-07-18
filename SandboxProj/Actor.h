@@ -27,6 +27,8 @@ class Actor {
   bool m_castShadow = true;
   bool m_drawNormals = false;
 
+  DirectX::BoundingSphere m_boundingSphere;
+
 private:
   ComPtr < ID3D11Buffer > m_actorConstsGPU;
 };
