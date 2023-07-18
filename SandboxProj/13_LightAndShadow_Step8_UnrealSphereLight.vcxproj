@@ -161,6 +161,7 @@
     <ClInclude Include="GraphicsCommon.h" />
     <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="ImageFilter.h" />
+    <ClInclude Include="IndexColorMaker.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="Model.h" />

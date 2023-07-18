@@ -28,7 +28,7 @@ class ExampleApp : public AppBase {
     virtual void Render() override;
 
     void UpdateLights(float dt);
-
+    void PickIndexColorFromRT();
   protected:
     shared_ptr<Model> m_ground;
     shared_ptr<Model> m_mainObj;
@@ -69,7 +69,9 @@ class ExampleApp : public AppBase {
     float m_uiMinX = 0.f;
     float m_uiMaxY = 0.f;
     float m_uiMinY = 0.f;
-    int m_selectIndex = -1;
+    int m_selectButtonIndex = -1;
+
+    uint16_t m_pickColor[4] = {} ;
 };
 
 } // namespace hlab

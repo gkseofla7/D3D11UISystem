@@ -87,7 +87,9 @@ class AppBase {
     ComPtr<ID3D11ShaderResourceView> m_postEffectsSRV;
 
     ComPtr<ID3D11Texture2D> m_indexBuffer;
+    ComPtr<ID3D11Texture2D> m_resolvedIndexBuffer;
     ComPtr<ID3D11RenderTargetView> m_indexRTV;
+    ComPtr<ID3D11RenderTargetView> m_resolveIndexRTV;
     ComPtr<ID3D11Texture2D> m_indexStagingBuffer; // 1x1 작은 크기
 
 
@@ -116,10 +118,12 @@ class AppBase {
     bool m_rightButton = false;
     bool m_dragStartFlag = false;
 
-    // 마우스 커서 위치 저장 (Picking에 사용)
+    
     float m_cursorNdcX = 0.0f;
     float m_cursorNdcY = 0.0f;
-
+    // 마우스 커서 위치 저장 (Picking에 사용)
+    int m_cursorX = 0;
+    int m_cursorY = 0;
     // 렌더링 -> PostEffects -> PostProcess
     PostEffectsConstants m_postEffectsConstsCPU;
     ComPtr<ID3D11Buffer> m_postEffectsConstsGPU;

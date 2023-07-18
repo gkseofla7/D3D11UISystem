@@ -163,6 +163,8 @@ LRESULT AppBase::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             return 0;
         break;
     case WM_MOUSEMOVE:
+        m_cursorX = LOWORD(lParam);
+        m_cursorY = HIWORD(lParam);
         OnMouseMove(LOWORD(lParam), HIWORD(lParam));
         break;
     case WM_LBUTTONDOWN:
@@ -688,6 +690,8 @@ void AppBase::CreateBuffers() {
 
     ThrowIfFailed(m_device->CreateTexture2D(
         &desc, NULL, m_indexStagingBuffer.GetAddressOf()));
+
+
     // 마우스 피킹에 사용할 인덱스 색을 렌더링할 텍스춰와 렌더타겟 생성
     backBuffer->GetDesc(&desc); // BackBuffer와 동일한 설정
     //음..//
@@ -702,11 +706,19 @@ void AppBase::CreateBuffers() {
         desc.SampleDesc.Count = 1;
         desc.SampleDesc.Quality = 0;
     }
-
+    //여기 다시 확인
     ThrowIfFailed(m_device->CreateTexture2D(&desc, nullptr,
                                             m_indexBuffer.GetAddressOf()));
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    ThrowIfFailed(m_device->CreateTexture2D(
+        &desc, NULL, m_resolvedIndexBuffer.GetAddressOf()));
+
     ThrowIfFailed(m_device->CreateRenderTargetView(m_indexBuffer.Get(), nullptr,
                                                    m_indexRTV.GetAddressOf()));
+    ThrowIfFailed(
+        m_device->CreateRenderTargetView(m_resolvedIndexBuffer.Get(), nullptr,
+                                         m_resolveIndexRTV.GetAddressOf()));
 
   
 }

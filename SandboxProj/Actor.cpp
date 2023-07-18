@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include "IndexColorMaker.h"
 
 namespace hlab {
 
@@ -9,6 +10,8 @@ namespace hlab {
         D3D11Utils::CreateConstBuffer(device, m_actorConstsCPU,
                                           m_actorConstsGPU);
             m_actorConstsCPU.world = Matrix();
+
+        m_actorConstsCPU.indexColor = IndexColorMaker::getInstance().GetNewIndexColor();
     }
 
 

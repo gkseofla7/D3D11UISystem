@@ -1,5 +1,5 @@
 ﻿#include "ExampleApp.h"
-
+#include <stdint.h>
 #include <DirectXCollision.h> // 구와 광선 충돌 계산에 사용
 #include <directxtk/DDSTextureLoader.h>
 #include <directxtk/SimpleMath.h>
@@ -8,7 +8,98 @@
 #include "DragDropButton.h"
 #include "GeometryGenerator.h"
 #include "GraphicsCommon.h"
-//
+
+
+#include <inttypes.h>
+
+typedef uint16_t HALF;
+
+/* ----- prototypes ------ */
+float HALFToFloat(HALF);
+HALF floatToHALF(float);
+static uint32_t halfToFloatI(HALF);
+static HALF floatToHalfI(uint32_t);
+
+float HALFToFloat(HALF y) {
+    union {
+        float f;
+        uint32_t i;
+    } v;
+    v.i = halfToFloatI(y);
+    return v.f;
+}
+
+uint32_t static halfToFloatI(HALF y) {
+    int s = (y >> 15) & 0x00000001; // sign
+    int e = (y >> 10) & 0x0000001f; // exponent
+    int f = y & 0x000003ff;         // fraction
+
+    // need to handle 7c00 INF and fc00 -INF?
+    if (e == 0) {
+        // need to handle +-0 case f==0 or f=0x8000?
+        if (f == 0) // Plus or minus zero
+            return s << 31;
+        else { // Denormalized number -- renormalize it
+            while (!(f & 0x00000400)) {
+                f <<= 1;
+                e -= 1;
+            }
+            e += 1;
+            f &= ~0x00000400;
+        }
+    } else if (e == 31) {
+        if (f == 0) // Inf
+            return (s << 31) | 0x7f800000;
+        else // NaN
+            return (s << 31) | 0x7f800000 | (f << 13);
+    }
+
+    e = e + (127 - 15);
+    f = f << 13;
+
+    return ((s << 31) | (e << 23) | f);
+}
+
+HALF floatToHALF(float i) {
+    union {
+        float f;
+        uint32_t i;
+    } v;
+    v.f = i;
+    return floatToHalfI(v.i);
+}
+
+HALF static floatToHalfI(uint32_t i) {
+    register int s = (i >> 16) & 0x00008000;                // sign
+    register int e = ((i >> 23) & 0x000000ff) - (127 - 15); // exponent
+    register int f = i & 0x007fffff;                        // fraction
+
+    // need to handle NaNs and Inf?
+    if (e <= 0) {
+        if (e < -10) {
+            if (s) // handle -0.0
+                return 0x8000;
+            else
+                return 0;
+        }
+        f = (f | 0x00800000) >> (1 - e);
+        return s | (f >> 13);
+    } else if (e == 0xff - (127 - 15)) {
+        if (f == 0) // Inf
+            return s | 0x7c00;
+        else { // NAN
+            f >>= 13;
+            return s | 0x7c00 | f | (f == 0);
+        }
+    } else {
+        if (e > 30) // Overflow
+            return s | 0x7c00;
+        return s | (e << 10) | (f >> 13);
+    }
+}
+
+
+
 namespace hlab {
 
 using namespace std;
@@ -327,6 +418,12 @@ bool ExampleApp::Initialize() {
         m_basicList.push_back(m_cursorSphere); // 리스트에 등록
     }
 
+    //Picking System~
+    {
+        // 32비트 float로 변환
+        float floatValue = HALFToFloat(m_pickColor[0]);
+    }
+
     return true;
 }
 
@@ -412,7 +509,7 @@ void ExampleApp::Update(float dt) {
     AppBase::UpdateGlobalConstants(eyeWorld, viewRow, projRow, reflectRow);
 
     // 거울은 따로 처리
-    m_mirror->UpdateConstantBuffers(m_device, m_context);
+    m_mirrorActor->UpdateConstantBuffers(m_device, m_context);
 
     // 조명의 위치 반영
     for (int i = 0; i < MAX_LIGHTS; i++)
@@ -451,21 +548,22 @@ void ExampleApp::Update(float dt) {
             if (m_cursorNdcX <= m_uiMaxX && m_cursorNdcX >= m_uiMinX &&
                 m_cursorNdcY <= m_uiMaxY && m_cursorNdcY >= m_uiMinY) {
                 //Button이 아직 선택 안돼있으면
-                 if (m_selectIndex == -1) 
+            if (m_selectButtonIndex == -1) 
                  {
                     for (int i = 0; i < m_uiButtons.size(); i++) {
                         if (m_uiButtons[i]->IsCursorInButton(m_cursorNdcX, m_cursorNdcY)) {
-                            m_selectIndex = i;
+                            m_selectButtonIndex = i;
                         }
                     }
 
                  }
                  
                  //선택했는데 이제 막 선택한거라면
-                 if (m_selectIndex != -1 && m_dragdropButton->m_isVisible==false) {
+                 if (m_selectButtonIndex != -1 &&
+                     m_dragdropButton->m_isVisible == false) {
                      //Button에 경우엔 스크린 좌표로 위치가 결정돼서 별도의 ConstBuffer 존재
                         m_dragdropButton->m_buttonConstsCPU.screenPos =
-                        m_uiButtons[m_selectIndex]
+                        m_uiButtons[m_selectButtonIndex]
                             ->m_buttonConstsCPU
                                 .screenPos;
                     m_dragdropButton->m_isVisible = true;
@@ -481,19 +579,20 @@ void ExampleApp::Update(float dt) {
                     
                     //Todo
                     shared_ptr<Actor> actor = make_shared<Actor>(
-                        m_device, m_context, m_uiButtons[m_selectIndex]->m_createModel);
+                        m_device, m_context,
+                        m_uiButtons[m_selectButtonIndex]->m_createModel);
                     //actor 위치 계산 물체가 있다면 물체 위에, 없다면 그냥 특정 z값에 스크린 좌표 움직임
 
                     m_dynamicActors.push_back(actor);
-                    //m_dynamicObjs[m_selectIndex]->AddMeshConstBuffers(m_device);
+                    //m_dynamicObjs[m_selectButtonIndex]->AddMeshConstBuffers(m_device);
                     //int meshConstsIndex =
-                    //    m_dynamicObjs[m_selectIndex]->m_meshConstsCPUs.size() -
+                    //    m_dynamicObjs[m_selectButtonIndex]->m_meshConstsCPUs.size() -
                     //    1;
-                    //m_dynamicObjs[m_selectIndex]
+                    //m_dynamicObjs[m_selectButtonIndex]
                     //    ->m_meshConstsCPUs[meshConstsIndex].world;
                  }
                  
-                 if (m_selectIndex!= -1) {
+                 if (m_selectButtonIndex != -1) {
                  //아직 선택돼있는 상태
 
                  }
@@ -501,7 +600,7 @@ void ExampleApp::Update(float dt) {
     }
     else {
             m_dragdropButton->m_isVisible = false;
-            m_selectIndex = -1;
+            m_selectButtonIndex = -1;
     }
     m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
 
@@ -529,19 +628,19 @@ void ExampleApp::Render() {
 
     const float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     vector<ID3D11RenderTargetView *> rtvs = {m_floatRTV.Get(),
-                                             m_indexRTV.Get()};    
+                                             m_indexRTV.Get()}; // m_indexRTV
     // Depth Only Pass (RTS 생략 가능)
     m_context->OMSetRenderTargets(0, NULL, m_depthOnlyDSV.Get());
     m_context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH,
                                      1.0f, 0);
     AppBase::SetPipelineState(Graphics::depthOnlyPSO);
     AppBase::SetGlobalConsts(m_globalConstsGPU);
-    //basicList 모두 Actor로 변경필요..ㅎ
+
     for (auto &i : m_basicList)
         i->Render(m_context);
     //
     m_skybox->Render(m_context);
-    //m_mirror->Render(m_context);
+    m_mirrorActor->Render(m_context);
 
     // 그림자맵 만들기
     AppBase::SetShadowViewport(); // 그림자맵 해상도
@@ -557,13 +656,15 @@ void ExampleApp::Render() {
                 if (i->m_castShadow && i->m_isVisible)
                     i->Render(m_context);
             m_skybox->Render(m_context);
-            //m_mirror->Render(m_context);
+            m_mirrorActor->Render(m_context);
         }
     }
 
     // 다시 렌더링 해상도로 되돌리기
     AppBase::SetMainViewport();
-    //
+    
+
+    // 여기서 제대로 그리기 시작
     // 거울 1. 거울은 빼고 원래 대로 그리기
     for (size_t i = 0; i < rtvs.size(); i++) {
         m_context->ClearRenderTargetView(rtvs[i], clearColor);
@@ -591,9 +692,15 @@ void ExampleApp::Render() {
         i->Render(m_context);
     }
 
+
+    //Todo 잠깐 거울은 Pick 못하는걸로 테스트
+    PickIndexColorFromRT();
+
     // 거울 반사를 그릴 필요가 없으면 불투명 거울만 그리기
-    //if (m_mirrorAlpha == 1.0f)
-    //    m_mirror->Render(m_context);
+    if (m_mirrorAlpha == 1.0f)
+        m_mirrorActor->Render(m_context);
+
+
 
     AppBase::SetPipelineState(Graphics::normalsPSO);
     for (auto &i : m_basicList) {
@@ -611,7 +718,7 @@ void ExampleApp::Render() {
         // 거울 2. 거울 위치만 StencilBuffer에 1로 표기
         AppBase::SetPipelineState(Graphics::stencilMaskPSO);
 
-        //m_mirror->Render(m_context);
+        m_mirrorActor->Render(m_context);
 
         // 거울 3. 거울 위치에 반사된 물체들을 렌더링
         AppBase::SetPipelineState(m_drawAsWire ? Graphics::reflectWirePSO
@@ -635,7 +742,7 @@ void ExampleApp::Render() {
                                                : Graphics::mirrorBlendSolidPSO);
         AppBase::SetGlobalConsts(m_globalConstsGPU);
 
-        //m_mirror->Render(m_context);
+        m_mirrorActor->Render(m_context);
 
     } // end of if (m_mirrorAlpha < 1.0f)
 
@@ -678,6 +785,33 @@ void ExampleApp::Render() {
         m_uiButtons[i]->Render(m_context);
     }
     m_dragdropButton->Render(m_context);
+}
+
+
+void ExampleApp::PickIndexColorFromRT() {
+    //Resolve를 먼저 해야되지않을까..
+    m_context->ResolveSubresource(m_resolvedIndexBuffer.Get(), 0,
+                                  m_indexBuffer.Get(), 0,
+                                  DXGI_FORMAT_R16G16B16A16_FLOAT);
+
+    // 일부만 복사할 때 사용
+    D3D11_BOX box;
+    box.left = m_cursorX;
+    box.right = m_cursorX+1;
+    box.top = m_cursorY;
+    box.bottom = m_cursorY+1;
+    box.front = 0;
+    box.back = 1;
+    m_context->CopySubresourceRegion(m_indexStagingBuffer.Get(), 0, 0, 0, 0,
+                                   m_resolvedIndexBuffer.Get(), 0, &box);
+
+
+    D3D11_MAPPED_SUBRESOURCE ms;
+    m_context->Map(m_indexStagingBuffer.Get(), NULL, D3D11_MAP_READ, NULL,
+                 &ms); // D3D11_MAP_READ 주의
+
+    memcpy(m_pickColor, ms.pData, sizeof(uint16_t) * 4);
+    m_context->Unmap(m_indexStagingBuffer.Get(), NULL);
 }
 
 void ExampleApp::UpdateGUI() {

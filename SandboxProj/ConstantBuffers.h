@@ -33,7 +33,7 @@ __declspec(align(256)) struct ActorConstants {
     Matrix world;
     Matrix worldIT;
     Vector3 indexColor;
-    float dummy;
+    float dummy = 0.f;
 };
 
 // 주로 Pixel 쉐이더에서 사용
@@ -126,6 +126,6 @@ __declspec(align(256)) struct PostEffectsConstants {
 __declspec(align(256)) struct UIButtonConstants {
     Vector2 screenPos;
     float buttonLength = 0.0f;
-    float dummy;
+    float dummy = 0.f;
 };
 } // namespace hlab

@@ -46,6 +46,7 @@
     <ClInclude Include="DragDropButton.h" />
     <ClInclude Include="MultipleModel.h" />
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="IndexColorMaker.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
