@@ -3,6 +3,12 @@
 
 namespace hlab {
 
+    enum ActorBoundingType {
+        SPHERE,
+        BOX,
+    };
+
+
 class Actor {
   public:
     Actor(){}
@@ -27,10 +33,15 @@ class Actor {
   bool m_castShadow = true;
   bool m_drawNormals = false;
 
-  DirectX::BoundingSphere m_boundingSphere;
+  ActorBoundingType m_BoundingType = ActorBoundingType::SPHERE;
+  DirectX::BoundingSphere m_boundingSphere = DirectX::BoundingSphere();
+  DirectX::BoundingBox m_boundingBox = DirectX::BoundingBox();
+
+  Matrix m_worldMatrix;
 
 private:
   ComPtr < ID3D11Buffer > m_actorConstsGPU;
+
 };
 
 

@@ -33,14 +33,18 @@ namespace hlab {
             m_model->Render(context);
         } 
     }
-
+    
     void Actor::UpdateWorldRow(const Matrix &worldRow) {
+        m_boundingSphere.Center = worldRow.Translation();
+        m_worldMatrix = worldRow;
         Matrix worldITRow = worldRow;
         worldITRow.Translation(Vector3(0.0f));
         worldITRow = worldRow.Invert().Transpose();
 
         m_actorConstsCPU.world = worldRow.Transpose();
         m_actorConstsCPU.worldIT = worldITRow.Transpose();
+
+      
     }
 
     void Actor::RenderNormals(ComPtr<ID3D11DeviceContext> &context) {

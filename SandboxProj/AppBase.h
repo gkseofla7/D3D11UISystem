@@ -12,6 +12,7 @@
 #include "D3D11Utils.h"
 #include "GraphicsPSO.h"
 #include "PostProcess.h"
+#include "Actor.h"
 
 namespace hlab {
 
@@ -48,7 +49,8 @@ class AppBase {
 
     void CreateDepthBuffers();
     void SetPipelineState(const GraphicsPSO &pso);
-    bool UpdateMouseControlTranslate(const BoundingSphere &bs, const DirectX::BoundingBox &bsq, 
+    bool UpdateMouseControlTranslate(const BoundingSphere &bs,
+                                     const DirectX::BoundingBox &bsq,
                             Vector3 &dragTranslation, Vector3 &pickPoint);
     bool UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
                              Vector3 &pickPoint);
