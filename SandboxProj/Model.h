@@ -9,7 +9,11 @@
 // https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/MiniEngine/Model/Model.h
 
 namespace hlab {
-
+    enum ModelBoundingType {
+        None,
+        BOX,
+        SPHERE
+    };
 class Model {
   public:
     Model() {}
@@ -46,7 +50,7 @@ class Model {
     //bool m_castShadow = true;
 
     std::vector<shared_ptr<Mesh>> m_meshes;
-
+    ModelBoundingType m_boundingType = ModelBoundingType::None;
   private:
     ComPtr<ID3D11Buffer> m_meshConstsGPU;
     ComPtr<ID3D11Buffer> m_materialConstsGPU;

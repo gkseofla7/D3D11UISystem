@@ -3,12 +3,6 @@
 
 namespace hlab {
 
-    enum ActorBoundingType {
-        SPHERE,
-        BOX,
-    };
-
-
 class Actor {
   public:
     Actor(){}
@@ -33,10 +27,9 @@ class Actor {
   bool m_castShadow = true;
   bool m_drawNormals = false;
 
-  ActorBoundingType m_BoundingType = ActorBoundingType::SPHERE;
   DirectX::BoundingSphere m_boundingSphere = DirectX::BoundingSphere();
   DirectX::BoundingBox m_boundingBox = DirectX::BoundingBox();
-
+  ModelBoundingType m_boundingType = ModelBoundingType::None;
   Matrix m_worldMatrix;
 
 private:

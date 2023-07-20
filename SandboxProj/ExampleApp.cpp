@@ -121,86 +121,9 @@ bool ExampleApp::Initialize() {
                           L"OutdoorDiffuseHDR.dds", L"OutdoorBrdf.dds");
 
     
-    // Model 정의
-    {{// auto meshes = GeometryGenerator::ReadFromFile(
-      //     "../Assets/Models/DamagedHelmet/", "DamagedHelmet.gltf");
-
-      // auto meshes = GeometryGenerator::ReadFromFile(
-      //     "../Assets/Models/medieval_vagrant_knights/", "scene.gltf",
-      //     true);
-
-      // 컴퓨터가 느릴 때는 간단한 물체로 테스트 하세요.
-      vector<MeshData> meshes = {GeometryGenerator::MakeSphere(0.4f, 50, 50)};
-
-    // string path = "../Assets/Characters/armored-female-future-soldier/";
-    // auto meshes = GeometryGenerator::ReadFromFile(path,
-    // "angel_armor.fbx"); meshes[0].albedoTextureFilename = path +
-    // "/angel_armor_albedo.jpg"; meshes[0].emissiveTextureFilename = path +
-    // "/angel_armor_e.jpg"; meshes[0].metallicTextureFilename = path +
-    // "/angel_armor_metalness.jpg"; meshes[0].normalTextureFilename = path
-    // + "/angel_armor_normal.jpg"; meshes[0].roughnessTextureFilename =
-    //     path + "/angel_armor_roughness.jpg";
-
-    m_mainObj = make_shared<Model>(m_device, m_context, meshes);
-    m_mainObj->m_materialConstsCPU.invertNormalMapY = true; // GLTF는 true로
-    m_mainObj->m_materialConstsCPU.albedoFactor = Vector3(1.0f);
-    m_mainObj->m_materialConstsCPU.roughnessFactor = 0.3f;
-    m_mainObj->m_materialConstsCPU.metallicFactor = 0.8f;
-}
-// 바닥
-{
-    auto mesh = GeometryGenerator::MakeSquare(5.0);
-    // mesh.albedoTextureFilename =
-    //     "../Assets/Textures/blender_uv_grid_2k.png";
-    m_ground = make_shared<Model>(m_device, m_context, vector{mesh});
-    m_ground->m_materialConstsCPU.albedoFactor = Vector3(0.1f);
-    m_ground->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
-    m_ground->m_materialConstsCPU.metallicFactor = 0.5f;
-    m_ground->m_materialConstsCPU.roughnessFactor = 0.3f;
-    m_mirror = m_ground;
-}
-// 추가 물체 1
-{
-    MeshData mesh = GeometryGenerator::MakeSphere(0.2f, 200, 200);
-
-    m_sphere = make_shared<Model>(m_device, m_context, vector{mesh});
-    m_sphere->m_materialConstsCPU.albedoFactor = Vector3(0.1f, 0.1f, 1.0f);
-    m_sphere->m_materialConstsCPU.roughnessFactor = 0.2f;
-    m_sphere->m_materialConstsCPU.metallicFactor = 0.6f;
-    m_sphere->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
-}
-// 추가 물체2
-{
-    MeshData mesh = GeometryGenerator::MakeBox(0.2f);
-
-    m_square = make_shared<Model>(m_device, m_context, vector{mesh});
-    m_square->m_materialConstsCPU.albedoFactor = Vector3(1.0f, 0.2f, 0.2f);
-    m_square->m_materialConstsCPU.roughnessFactor = 0.5f;
-    m_square->m_materialConstsCPU.metallicFactor = 0.9f;
-    m_square->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
-}
-// Light Model
-{
-    MeshData sphere = GeometryGenerator::MakeSphere(1.0f, 20, 20);
-    m_lightSphereModel =
-        make_shared<Model>(m_device, m_context, vector{sphere});
-    m_lightSphereModel->m_materialConstsCPU.albedoFactor = Vector3(0.0f);
-    m_lightSphereModel->m_materialConstsCPU.emissionFactor =
-        Vector3(1.0f, 1.0f, 0.0f);
-}
-
-// 커서 표시 (Main sphere와의 충돌이 감지되면 월드 공간에 작게 그려지는
-// 구)
-{
-    MeshData sphere = GeometryGenerator::MakeSphere(0.01f, 10, 10);
-    m_cursorSphereModel =
-        make_shared<Model>(m_device, m_context, vector{sphere});
-    m_cursorSphereModel->m_materialConstsCPU.albedoFactor = Vector3(0.0f);
-    m_cursorSphereModel->m_materialConstsCPU.emissionFactor =
-        Vector3(0.0f, 1.0f, 0.0f);
-}
-
-} // namespace hlab
+    if(!InitializeModel()) {
+        return false;
+    }
 
     // 후처리용 화면 사각형
     {
@@ -435,6 +358,110 @@ bool ExampleApp::Initialize() {
     return true;
 }
 
+bool ExampleApp::InitializeModel() {
+        // Model 정의
+        {
+            { // auto meshes = GeometryGenerator::ReadFromFile(
+                //     "../Assets/Models/DamagedHelmet/", "DamagedHelmet.gltf");
+
+                // auto meshes = GeometryGenerator::ReadFromFile(
+                //     "../Assets/Models/medieval_vagrant_knights/",
+                //     "scene.gltf", true);
+
+                // 컴퓨터가 느릴 때는 간단한 물체로 테스트 하세요.
+                vector<MeshData> meshes = {
+                    GeometryGenerator::MakeSphere(0.4f, 50, 50)};
+
+                // string path =
+                // "../Assets/Characters/armored-female-future-soldier/"; auto
+                // meshes = GeometryGenerator::ReadFromFile(path,
+                // "angel_armor.fbx"); meshes[0].albedoTextureFilename = path +
+                // "/angel_armor_albedo.jpg"; meshes[0].emissiveTextureFilename
+                // = path +
+                // "/angel_armor_e.jpg"; meshes[0].metallicTextureFilename =
+                // path +
+                // "/angel_armor_metalness.jpg"; meshes[0].normalTextureFilename
+                // = path
+                // + "/angel_armor_normal.jpg";
+                // meshes[0].roughnessTextureFilename =
+                //     path + "/angel_armor_roughness.jpg";
+
+                m_mainObj = make_shared<Model>(m_device, m_context, meshes);
+                m_mainObj->m_materialConstsCPU.invertNormalMapY =
+                    true; // GLTF는 true로
+                m_mainObj->m_materialConstsCPU.albedoFactor = Vector3(1.0f);
+                m_mainObj->m_materialConstsCPU.roughnessFactor = 0.3f;
+                m_mainObj->m_materialConstsCPU.metallicFactor = 0.8f;
+                m_mainObj->m_boundingType = ModelBoundingType::BOX;
+            }
+            // 바닥
+            {
+                auto mesh = GeometryGenerator::MakeSquare(5.0);
+                // mesh.albedoTextureFilename =
+                //     "../Assets/Textures/blender_uv_grid_2k.png";
+                m_ground =
+                    make_shared<Model>(m_device, m_context, vector{mesh});
+                m_ground->m_materialConstsCPU.albedoFactor = Vector3(0.1f);
+                m_ground->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
+                m_ground->m_materialConstsCPU.metallicFactor = 0.5f;
+                m_ground->m_materialConstsCPU.roughnessFactor = 0.3f;
+                m_mainObj->m_boundingType = ModelBoundingType::BOX;
+                m_mirror = m_ground;
+            }
+            // 추가 물체 1
+            {
+                MeshData mesh = GeometryGenerator::MakeSphere(0.2f, 200, 200);
+
+                m_sphere =
+                    make_shared<Model>(m_device, m_context, vector{mesh});
+                m_sphere->m_materialConstsCPU.albedoFactor =
+                    Vector3(0.1f, 0.1f, 1.0f);
+                m_sphere->m_materialConstsCPU.roughnessFactor = 0.2f;
+                m_sphere->m_materialConstsCPU.metallicFactor = 0.6f;
+                m_sphere->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
+                m_sphere->m_boundingType = ModelBoundingType::SPHERE;
+            }
+            // 추가 물체2
+            {
+                MeshData mesh = GeometryGenerator::MakeBox(0.2f);
+
+                m_square =
+                    make_shared<Model>(m_device, m_context, vector{mesh});
+                m_square->m_materialConstsCPU.albedoFactor =
+                    Vector3(1.0f, 0.2f, 0.2f);
+                m_square->m_materialConstsCPU.roughnessFactor = 0.5f;
+                m_square->m_materialConstsCPU.metallicFactor = 0.9f;
+                m_square->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
+                m_square->m_boundingType = ModelBoundingType::BOX;
+            }
+            // Light Model
+            {
+                MeshData sphere = GeometryGenerator::MakeSphere(1.0f, 20, 20);
+                m_lightSphereModel =
+                    make_shared<Model>(m_device, m_context, vector{sphere});
+                m_lightSphereModel->m_materialConstsCPU.albedoFactor =
+                    Vector3(0.0f);
+                m_lightSphereModel->m_materialConstsCPU.emissionFactor =
+                    Vector3(1.0f, 1.0f, 0.0f);
+                m_lightSphereModel ->m_boundingType =
+                    ModelBoundingType::SPHERE;
+            }
+
+            // 커서 표시 (Main sphere와의 충돌이 감지되면 월드 공간에 작게
+            // 그려지는 구)
+            {
+                MeshData sphere = GeometryGenerator::MakeSphere(0.01f, 10, 10);
+                m_cursorSphereModel =
+                    make_shared<Model>(m_device, m_context, vector{sphere});
+                m_cursorSphereModel->m_materialConstsCPU.albedoFactor =
+                    Vector3(0.0f);
+                m_cursorSphereModel->m_materialConstsCPU.emissionFactor =
+                    Vector3(0.0f, 1.0f, 0.0f);
+            }
+
+        }
+}
+
 void ExampleApp::UpdateLights(float dt) {
 
     // 회전하는 lights[1] 업데이트
@@ -539,7 +566,6 @@ void ExampleApp::Update(float dt) {
                     }
                 }
             }
-
             // 선택했는데 이제 막 선택한거라면
             if (m_selectButtonIndex != -1 &&
                 m_dragdropButton->m_isVisible == false) {
