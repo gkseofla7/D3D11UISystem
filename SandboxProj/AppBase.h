@@ -24,6 +24,14 @@ using std::shared_ptr;
 using std::vector;
 using std::wstring;
 
+enum DragType
+{
+    NONE,
+    GROUNDDRAG,
+    UPDOWNLEFTRIGHTDRAG,
+    ROTATEDRAG
+};
+
 class AppBase {
   public:
     AppBase();
@@ -120,7 +128,7 @@ class AppBase {
 
     bool m_leftButton = false;
     bool m_rightButton = false;
-    bool m_dragStartFlag = false;
+    DragType m_dragType = DragType::NONE;
 
     
     float m_cursorNdcX = 0.0f;

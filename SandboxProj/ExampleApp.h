@@ -51,7 +51,6 @@ class ExampleApp : public AppBase {
 
     shared_ptr<Actor> m_selectedActor;
     
-    vector<shared_ptr<Actor>> m_dynamicActors;
     vector<shared_ptr<DragDropButton>> m_uiButtons;
     shared_ptr<DragDropButton> m_dragdropButton;
 

@@ -6,7 +6,15 @@ namespace hlab {
     void Actor::Initialize(ComPtr<ID3D11Device> &device,
         ComPtr<ID3D11DeviceContext>& context,
         shared_ptr<Model>& model) {
+        //TODO BoundingSphere도 Scale 적용 가능하게 만들기
             m_model = model;
+        m_boundingType = m_model->m_boundingType;
+            if (m_boundingType == ModelBoundingType::BOX) {
+                
+            } else if (m_boundingType == ModelBoundingType::SPHERE) {
+            
+            }
+
         D3D11Utils::CreateConstBuffer(device, m_actorConstsCPU,
                                           m_actorConstsGPU);
             m_actorConstsCPU.world = Matrix();

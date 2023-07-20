@@ -169,7 +169,8 @@ LRESULT AppBase::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         break;
     case WM_LBUTTONDOWN:
         if (!m_leftButton) {
-            m_dragStartFlag = true; // 드래그를 새로 시작하는지 확인
+            DragType m_dragType =
+                DragType::NONE; // 드래그를 새로 시작하는지 확인
         }
         m_leftButton = true;
         break;
@@ -178,7 +179,8 @@ LRESULT AppBase::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         break;
     case WM_RBUTTONDOWN:
         if (!m_rightButton) {
-            m_dragStartFlag = true; // 드래그를 새로 시작하는지 확인
+            DragType m_dragType =
+                DragType::NONE; // 드래그를 새로 시작하는지 확인
         }
         m_rightButton = true;
         break;
@@ -403,23 +405,23 @@ bool AppBase::UpdateMouseControlTranslate(const BoundingSphere &bs,
                 auto pickGroundPoint = cursorWorldNear + groundDist * dir;
                 //원이다 보니 바닥의 Normal Vector 방향으로 위로 이동
                // pickPoint += Vector3(0.0f, 1.0f, 0.0f) *( bs.Radius / 2.0f+0.2f);
-
-                if (m_dragStartFlag) { // 드래그를 시작하는 경우
-                    m_dragStartFlag = false;
-                    prevPos = pickGroundPoint;
+                //
+                if (m_dragType !=
+                        DragType::GROUNDDRAG) { // 드래그를 시작하는 경우
+                    m_dragType = DragType::GROUNDDRAG;
+                    prevPos = pickPoint;
                 } else {
                     Vector3 newPos = pickGroundPoint;
-                    if ((newPos - pickPoint).Length() > 1e-3) {
-                        dragTranslation = newPos - pickPoint;
+                    if ((newPos - prevPos).Length() > 1e-3) {
+                        dragTranslation = newPos - prevPos;
                         prevPos = newPos;
                     }
 
                 }
             } else {
-                
-
-                if (m_dragStartFlag) { // 드래그를 시작하는 경우
-                    m_dragStartFlag = false;
+                if (m_dragType !=
+                    DragType::UPDOWNLEFTRIGHTDRAG) { // 드래그를 시작하는 경우
+                    m_dragType = DragType::UPDOWNLEFTRIGHTDRAG;
                     prevRatio =
                         dist / (cursorWorldFar - cursorWorldNear).Length();
                     prevPos = pickPoint;
@@ -480,8 +482,8 @@ bool AppBase::UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
         if (curRay.Intersects(bs, dist)) {
             pickPoint = cursorWorldNear + dist * dir;
             // mainSphere를 어떻게 회전시킬지 결정
-            if (m_dragStartFlag) { // 드래그를 시작하는 경우
-                m_dragStartFlag = false;
+            if (m_dragType!=DragType::ROTATEDRAG) { // 드래그를 시작하는 경우
+                m_dragType = DragType::ROTATEDRAG;
                 prevVector = pickPoint - bs.Center;
                 prevVector.Normalize();
             } else {
