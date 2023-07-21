@@ -24,6 +24,7 @@ class ExampleApp : public AppBase {
 
     virtual bool Initialize() override;
     bool InitializeModel();
+    bool InitializeObject();
     virtual void UpdateGUI() override;
     virtual void Update(float dt) override;
     virtual void Render() override;

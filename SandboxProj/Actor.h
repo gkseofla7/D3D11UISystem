@@ -18,6 +18,15 @@ class Actor {
     void UpdateWorldRow(const Matrix &worldRow);
     virtual void Render(ComPtr<ID3D11DeviceContext> &context); 
     void RenderNormals(ComPtr<ID3D11DeviceContext> &context);
+    template <typename T> T GetBoundingVolume() {
+        if (m_boundingType == ModelBoundingType::SPHERE) {
+            return m_boundingSphere;
+        } else if (m_boundingType == ModelBoundingType::BOX) {
+            return m_boundingBox;
+        } else {
+            return nullptr;
+        }
+    }
   public:
    shared_ptr<Model> m_model;
   //MeshConstants ¿Ãµø

@@ -1,7 +1,7 @@
 ﻿#include "AppBase.h"
 
 #include <algorithm>
-#include <directxtk/SimpleMath.h>
+
 
 #include "D3D11Utils.h"
 #include "GraphicsCommon.h"
@@ -363,87 +363,6 @@ void AppBase::SetPipelineState(const GraphicsPSO &pso) {
     m_context->IASetPrimitiveTopology(pso.m_primitiveTopology);
 }
 
-bool AppBase::UpdateMouseControlTranslate(const BoundingSphere &bs,
-                                 const DirectX::BoundingBox &bsq,
-                                 Vector3 &dragTranslation, Vector3 &pickPoint) {
-
-    const Matrix viewRow = m_camera.GetViewRow();
-    const Matrix projRow = m_camera.GetProjRow();
-
-    // mainSphere의 회전 계산용
-    static float prevRatio = 0.0f;
-    static Vector3 prevPos(0.0f);
-    static Vector3 prevVector(0.0f);
-
-    // 이동 초기화
-    dragTranslation = Vector3(0.0f);
-
-
-    if (m_leftButton) { 
-        //마우스가 Ground에 있을때, 없을때!
-        Vector3 cursorNdcNear = Vector3(m_cursorNdcX, m_cursorNdcY, 0.0f);
-        Vector3 cursorNdcFar = Vector3(m_cursorNdcX, m_cursorNdcY, 1.0f);
-
-        // NDC 커서 위치를 월드 좌표계로 역변환 해주는 행렬
-        Matrix inverseProjView = (viewRow * projRow).Invert();
-
-        // ViewFrustum 안에서 PickingRay의 방향 구하기
-        Vector3 cursorWorldNear =
-            Vector3::Transform(cursorNdcNear, inverseProjView);
-        Vector3 cursorWorldFar =
-            Vector3::Transform(cursorNdcFar, inverseProjView);
-        Vector3 dir = cursorWorldFar - cursorWorldNear;
-        dir.Normalize();
-        // 광선을 만들고 충돌 감지
-        SimpleMath::Ray curRay = SimpleMath::Ray(cursorWorldNear, dir);
-
-        float dist = 0.0f;
-        float groundDist = 0.0f;
-        if (curRay.Intersects(bs, dist)) {//내 물체가 Ray에 맞을경우
-            pickPoint = cursorWorldNear + dist * dir;
-            if (curRay.Intersects(bsq, groundDist)) {
-                auto pickGroundPoint = cursorWorldNear + groundDist * dir;
-                //원이다 보니 바닥의 Normal Vector 방향으로 위로 이동
-               // pickPoint += Vector3(0.0f, 1.0f, 0.0f) *( bs.Radius / 2.0f+0.2f);
-                //
-                if (m_dragType !=
-                        DragType::GROUNDDRAG) { // 드래그를 시작하는 경우
-                    m_dragType = DragType::GROUNDDRAG;
-                    prevPos = pickPoint;
-                } else {
-                    Vector3 newPos = pickGroundPoint;
-                    if ((newPos - prevPos).Length() > 1e-3) {
-                        dragTranslation = newPos - prevPos;
-                        prevPos = newPos;
-                    }
-
-                }
-            } else {
-                if (m_dragType !=
-                    DragType::UPDOWNLEFTRIGHTDRAG) { // 드래그를 시작하는 경우
-                    m_dragType = DragType::UPDOWNLEFTRIGHTDRAG;
-                    prevRatio =
-                        dist / (cursorWorldFar - cursorWorldNear).Length();
-                    prevPos = pickPoint;
-                } else {
-                    Vector3 newPos =
-                        cursorWorldNear +
-                        prevRatio * (cursorWorldFar - cursorWorldNear);
-                    if ((newPos - prevPos).Length() > 1e-3) {
-                        dragTranslation = newPos - prevPos;
-                        prevPos = newPos;
-                    }
-                }
-            }
-
-
-            return true; // selected
-        }
-    }
-
-    return false;
-}
-
 bool AppBase::UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
     Vector3& pickPoint) {
     const Matrix viewRow = m_camera.GetViewRow();
@@ -502,7 +421,21 @@ bool AppBase::UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
             return true; // selected
         }
     }
+    return false;
+}
+
+bool AppBase::UpdateMouseControlTranslate(const shared_ptr<Actor> actor,
+                                 const DirectX::BoundingBox &bsq,
+                                 Vector3 &dragTranslation, Vector3 &pickPoint) {
+    if (actor->m_boundingType == ModelBoundingType::BOX) {
+        return UpdateMouseControlTranslate(actor->m_boundingBox, bsq, dragTranslation,
+                                    pickPoint);
+    } else if (actor->m_boundingType == ModelBoundingType::SPHERE) {
+        return UpdateMouseControlTranslate(actor->m_boundingSphere, bsq, dragTranslation,
+                                    pickPoint);
     }
+    return false;
+}
 bool AppBase::InitMainWindow() {
 
     WNDCLASSEX wc = {sizeof(WNDCLASSEX),

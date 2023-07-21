@@ -51,6 +51,8 @@ class Model {
 
     std::vector<shared_ptr<Mesh>> m_meshes;
     ModelBoundingType m_boundingType = ModelBoundingType::None;
+    float m_boundingRadius = 0.0f;
+    Vector3 m_boundingExtent = Vector3();
   private:
     ComPtr<ID3D11Buffer> m_meshConstsGPU;
     ComPtr<ID3D11Buffer> m_materialConstsGPU;

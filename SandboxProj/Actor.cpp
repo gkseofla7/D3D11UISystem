@@ -5,27 +5,29 @@ namespace hlab {
 
     void Actor::Initialize(ComPtr<ID3D11Device> &device,
         ComPtr<ID3D11DeviceContext>& context,
-        shared_ptr<Model>& model) {
+        shared_ptr<Model>& model) 
+    {
         //TODO BoundingSphere도 Scale 적용 가능하게 만들기
             m_model = model;
         m_boundingType = m_model->m_boundingType;
             if (m_boundingType == ModelBoundingType::BOX) {
-                
-            } else if (m_boundingType == ModelBoundingType::SPHERE) {
-            
+                m_boundingBox.Extents = m_model->m_boundingExtent;
             }
-
-        D3D11Utils::CreateConstBuffer(device, m_actorConstsCPU,
+            // Rotate를 위한 BoundingSphere
+            m_boundingSphere.Radius = m_model->m_boundingRadius;
+            D3D11Utils::CreateConstBuffer(device, m_actorConstsCPU,
                                           m_actorConstsGPU);
             m_actorConstsCPU.world = Matrix();
 
-        m_actorConstsCPU.indexColor = IndexColorMaker::getInstance().GetNewIndexColor();
-    }
+            m_actorConstsCPU.indexColor =
+                IndexColorMaker::getInstance().GetNewIndexColor();
+     }
 
 
     void Actor::UpdateConstantBuffers(
              ComPtr<ID3D11Device> &device,
-             ComPtr<ID3D11DeviceContext> &context) {
+                                      ComPtr<ID3D11DeviceContext> & context)
+    {
         //TODO Model에 경우엔 모아서 한번만 하는게..ㅎ
         m_model->UpdateConstantBuffers(device, context);
         D3D11Utils::UpdateBuffer(device, context, m_actorConstsCPU,
