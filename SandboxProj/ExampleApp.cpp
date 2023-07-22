@@ -382,6 +382,76 @@ void ExampleApp::UpdateLights(float dt) {
     }
 }
 
+void ExampleApp::UpdateUIButton() {
+    const Matrix viewRow = m_camera.GetViewRow();
+    const Matrix projRow = m_camera.GetProjRow();
+
+    if (m_leftButton) {
+        if (m_cursorNdcX <= m_uiMaxX && m_cursorNdcX >= m_uiMinX &&
+            m_cursorNdcY <= m_uiMaxY && m_cursorNdcY >= m_uiMinY) {
+            // Button이 아직 선택 안돼있으면
+            if (m_selectButtonIndex == -1) {
+                for (int i = 0; i < m_uiButtons.size(); i++) {
+                    if (m_uiButtons[i]->IsCursorInButton(m_cursorNdcX,
+                                                         m_cursorNdcY)) {
+                        m_selectButtonIndex = i;
+                    }
+                }
+            }
+            // UI 내에서 DragDrop 구현
+            if (m_selectButtonIndex != -1 &&
+                m_dragdropButton->m_isVisible == false) {
+                // Button에 경우엔 스크린 좌표로 위치가 결정돼서 별도의
+                // ConstBuffer 존재
+                m_dragdropButton->m_buttonConstsCPU.screenPos =
+                    m_uiButtons[m_selectButtonIndex]
+                        ->m_buttonConstsCPU.screenPos;
+                m_dragdropButton->m_isVisible = true;
+            } else if (m_dragdropButton->m_isVisible) {
+                m_dragdropButton->m_buttonConstsCPU.screenPos =
+                    Vector2(m_cursorNdcX, m_cursorNdcY);
+            }
+        } else { // 범위 밖에 나갔는데 현재 UI 버튼이 선택돼있다면
+            if (m_dragdropButton->m_isVisible) {
+                m_dragdropButton->m_isVisible = false;
+                shared_ptr<Actor> actor = make_shared<Actor>(
+                    m_device, m_context,
+                    m_uiButtons[m_selectButtonIndex]->m_createModel);
+                // Todo UI에선 PickColor 작업 안하게
+                m_selectedActor = actor;
+                m_basicList.push_back(actor);
+
+                Vector3 cursorNdcNear =
+                    Vector3(m_cursorNdcX, m_cursorNdcY, 0.0f);
+                Vector3 cursorNdcFar =
+                    Vector3(m_cursorNdcX, m_cursorNdcY, 1.0f);
+
+                // NDC 커서 위치를 월드 좌표계로 역변환 해주는 행렬
+                Matrix inverseProjView = (viewRow * projRow).Invert();
+
+                // ViewFrustum 안에서 PickingRay의 방향 구하기
+                Vector3 cursorWorldNear =
+                    Vector3::Transform(cursorNdcNear, inverseProjView);
+                Vector3 cursorWorldFar =
+                    Vector3::Transform(cursorNdcFar, inverseProjView);
+                Vector3 dir = cursorWorldFar - cursorWorldNear;
+                dir.Normalize();
+
+                Vector3 actorNewPos = cursorWorldNear + dir * 0.3f;
+
+                Matrix TranslationMatrix = Matrix::CreateTranslation(
+                    actorNewPos -
+                    m_selectedActor->m_actorConstsCPU.world.Translation());
+                m_selectedActor->UpdateWorldRow(TranslationMatrix);
+            }
+        }
+    } else {
+        m_dragdropButton->m_isVisible = false;
+        m_selectButtonIndex = -1;
+    }
+    m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
+}
+
 void ExampleApp::Update(float dt) {
 
     // 카메라의 이동
@@ -397,7 +467,7 @@ void ExampleApp::Update(float dt) {
 
     // 공용 ConstantBuffer 업데이트
     AppBase::UpdateGlobalConstants(eyeWorld, viewRow, projRow, reflectRow);
-
+     
     // 거울은 따로 처리
     m_mirrorActor->UpdateConstantBuffers(m_device, m_context);
 
@@ -408,59 +478,7 @@ void ExampleApp::Update(float dt) {
                 std::max(0.01f, m_globalConstsCPU.lights[i].radius)) *
             Matrix::CreateTranslation(m_globalConstsCPU.lights[i].position));
     
-    if (m_leftButton) {
-        // UI 내에서만 DragDropButton 보이게
-        if (m_cursorNdcX <= m_uiMaxX && m_cursorNdcX >= m_uiMinX &&
-            m_cursorNdcY <= m_uiMaxY && m_cursorNdcY >= m_uiMinY) {
-            // Button이 아직 선택 안돼있으면
-            if (m_selectButtonIndex == -1) {
-                for (int i = 0; i < m_uiButtons.size(); i++) {
-                    if (m_uiButtons[i]->IsCursorInButton(m_cursorNdcX,
-                                                         m_cursorNdcY)) {
-                        m_selectButtonIndex = i;
-                    }
-                }
-            }
-            // 선택했는데 이제 막 선택한거라면
-            if (m_selectButtonIndex != -1 &&
-                m_dragdropButton->m_isVisible == false) {
-                // Button에 경우엔 스크린 좌표로 위치가 결정돼서 별도의
-                // ConstBuffer 존재
-                m_dragdropButton->m_buttonConstsCPU.screenPos =
-                    m_uiButtons[m_selectButtonIndex]
-                        ->m_buttonConstsCPU.screenPos;
-                m_dragdropButton->m_isVisible = true;
-            } else if (m_dragdropButton->m_isVisible) {
-                m_dragdropButton->m_buttonConstsCPU.screenPos =
-                    Vector2(m_cursorNdcX, m_cursorNdcY);
-            }
-        } else { // 범위 밖에 나가면
-            if (m_dragdropButton->m_isVisible) {
-                m_dragdropButton->m_isVisible = false;
-                shared_ptr<Actor> actor = make_shared<Actor>(
-                    m_device, m_context,
-                    m_uiButtons[m_selectButtonIndex]->m_createModel);
-                // Todo UI에선 PickColor 작업 안하게
-                m_selectedActor = actor;
-                //
-                m_basicList.push_back(actor);
-                // m_dynamicObjs[m_selectButtonIndex]->AddMeshConstBuffers(m_device);
-                // int meshConstsIndex =
-                //     m_dynamicObjs[m_selectButtonIndex]->m_meshConstsCPUs.size()
-                //     - 1;
-                // m_dynamicObjs[m_selectButtonIndex]
-                //     ->m_meshConstsCPUs[meshConstsIndex].world;
-            }
-
-            if (m_selectButtonIndex != -1) {
-                // 아직 선택돼있는 상태
-            }
-        }
-    } else {
-        m_dragdropButton->m_isVisible = false;
-        m_selectButtonIndex = -1;
-    }
-    m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
+    UpdateUIButton();
 
     // 마우스 이동/회전 반영
     // Todo 회전에 경우엔 특정 버튼을 눌렀을 경우에만 ,R로 설정
@@ -469,7 +487,7 @@ void ExampleApp::Update(float dt) {
         pickColor.x = HALFToFloat(m_pickColor[0]);
         pickColor.y = HALFToFloat(m_pickColor[1]);
         pickColor.z = HALFToFloat(m_pickColor[2]);
-
+         
         // 이제 막 Pick 했을 경우
         if (m_selectedActor.get() == nullptr && pickColor.Length() > 0.01f) {
             for (int i = 0; i < m_basicList.size(); i++) {
@@ -483,8 +501,9 @@ void ExampleApp::Update(float dt) {
         }
     } else {
         m_selectedActor.reset();
+        m_dragType = DragType::NONE;
     }
-    
+     
     if (m_selectedActor.get()!= nullptr) {
         if (m_rightButton) { // 회전
             Quaternion q;
@@ -522,10 +541,6 @@ void ExampleApp::Update(float dt) {
                             m_selectedActor->m_worldMatrix *
                             Matrix::CreateTranslation(dragTranslation +
                                                       translation));
-
-                        // Bounding Sphere에 경우엔 UpdateWorldRow에서 업데이트
-                        // m_selectedActor->m_boundingSphere.Center =
-                        //     m_selectedActor->m_actorConstsCPU.world.Translation();
 
                         // 충돌 지점에 작은 구 그리기
                         // Todo 현재 이동은 안그리기로
@@ -751,7 +766,7 @@ void ExampleApp::PickIndexColorFromRT() {
     memcpy(m_pickColor, ms.pData, sizeof(uint16_t) * 4);
     m_context->Unmap(m_indexStagingBuffer.Get(), NULL);
 }
-
+ 
 void ExampleApp::UpdateGUI() {
 
     ImGui::SetNextItemOpen(false, ImGuiCond_Once);

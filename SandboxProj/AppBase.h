@@ -199,19 +199,20 @@ class AppBase {
             SimpleMath::Ray curRay = SimpleMath::Ray(cursorWorldNear, dir);
 
             float dist = 0.0f;
-            float groundDist = 0.0f;
+            float groundDist = 0.0f; 
             if (curRay.Intersects(bs, dist)) { // 내 물체가 Ray에 맞을경우
                 pickPoint = cursorWorldNear + dist * dir;
                 if (curRay.Intersects(bsq, groundDist)) {
                     auto pickGroundPoint = cursorWorldNear + groundDist * dir;
                     // 원이다 보니 바닥의 Normal Vector 방향으로 위로 이동
                     // pickPoint += Vector3(0.0f, 1.0f, 0.0f) *( bs.Radius
-                    // / 2.0f+0.2f);
-                    //
+                    // / 2.0f+0.2f); 
                     if (m_dragType !=
                         DragType::GROUNDDRAG) { // 드래그를 시작하는 경우
                         m_dragType = DragType::GROUNDDRAG;
-                        prevPos = pickPoint;
+                        //prevPos = pickPoint;
+                        dragTranslation = pickGroundPoint - pickPoint;
+                        prevPos = pickGroundPoint;
                     } else {
                         Vector3 newPos = pickGroundPoint;
                         if ((newPos - prevPos).Length() > 1e-3) {
@@ -221,8 +222,7 @@ class AppBase {
                     }
                 } else {
                     if (m_dragType !=
-                        DragType::UPDOWNLEFTRIGHTDRAG) { // 드래그를 시작하는
-                                                         // 경우
+                        DragType::UPDOWNLEFTRIGHTDRAG) {
                         m_dragType = DragType::UPDOWNLEFTRIGHTDRAG;
                         prevRatio =
                             dist / (cursorWorldFar - cursorWorldNear).Length();

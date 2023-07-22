@@ -22,6 +22,8 @@ class Camera {
     void MoveRight(float dt);
     void MoveUp(float dt);
     void SetAspectRatio(float aspect);
+    
+    Vector3 GetViewDir() { return m_viewDir; }
 
   public:
     bool m_useFirstPersonView = false;

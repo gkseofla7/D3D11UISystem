@@ -30,6 +30,7 @@ class ExampleApp : public AppBase {
     virtual void Render() override;
 
     void UpdateLights(float dt);
+    void UpdateUIButton();
     void PickIndexColorFromRT();
   protected:
     shared_ptr<Model> m_ground;

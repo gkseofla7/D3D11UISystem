@@ -372,13 +372,12 @@ bool AppBase::UpdateMouseControlRotate(const BoundingSphere &bs, Quaternion &q,
     static float prevRatio = 0.0f;
     static Vector3 prevPos(0.0f);
     static Vector3 prevVector(0.0f);
-
+     
     // 회전 초기화
     q = Quaternion::CreateFromAxisAngle(Vector3(1.0f, 0.0f, 0.0f), 0.0f);
 
     // 마우스 왼쪽 버튼으로 회전
     if (m_rightButton) {
-
         // ViewFrustum에서 가까운 면 위의 커서 위치
         // ViewFrustum에서 먼 면 위의 커서 위치
         Vector3 cursorNdcNear = Vector3(m_cursorNdcX, m_cursorNdcY, 0.0f);

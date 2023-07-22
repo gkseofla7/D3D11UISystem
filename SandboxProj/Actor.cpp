@@ -28,7 +28,6 @@ namespace hlab {
              ComPtr<ID3D11Device> &device,
                                       ComPtr<ID3D11DeviceContext> & context)
     {
-        //TODO Model에 경우엔 모아서 한번만 하는게..ㅎ
         m_model->UpdateConstantBuffers(device, context);
         D3D11Utils::UpdateBuffer(device, context, m_actorConstsCPU,
                                      m_actorConstsGPU);      
