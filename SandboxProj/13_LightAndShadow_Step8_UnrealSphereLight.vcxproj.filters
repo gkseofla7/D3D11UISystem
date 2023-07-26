@@ -25,6 +25,7 @@
     <ClCompile Include="DragDropButton.cpp" />
     <ClCompile Include="MultipleModel.cpp" />
     <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="BillboardPoints.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppBase.h" />
@@ -47,6 +48,7 @@
     <ClInclude Include="MultipleModel.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="IndexColorMaker.h" />
+    <ClInclude Include="BillboardPoints.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />
@@ -101,6 +103,18 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="UIButtonVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardPointsPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardPointsVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="FireballPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="BillboardPointsGeometryShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -211,9 +211,16 @@ bool ExampleApp::Initialize() {
                 m_uiButtons[i]->m_buttonConstsCPU.screenPos =
                     Vector2(Pos.x, Pos.y);
                 //TODO
-                m_uiButtons[i]->m_createModel = m_sphere;
+                
                 m_uiButtons[i]->UpdateConstantBuffers(m_device, m_context);
             }
+
+            m_uiButtons[0]->m_createModel = m_sphere;
+            m_uiButtons[1]->m_createModel = m_mainObj;
+            m_uiButtons[2]->m_createModel = m_square;
+            m_uiButtons[3]->m_createModel = m_sphere;//나중에 거울로
+
+
         }
 
 
@@ -276,7 +283,7 @@ bool ExampleApp::Initialize() {
         // 조명 2는 꺼놓음
         m_globalConstsCPU.lights[2].type = LIGHT_OFF;
     }
-
+     
     // 조명 위치 표시
     {
         for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -346,7 +353,7 @@ void ExampleApp::UpdateLights(float dt) {
 
             Matrix lightProjRow = XMMatrixPerspectiveFovLH(
                 XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
-
+              
             m_shadowGlobalConstsCPU[i].eyeWorld = light.position;
             m_shadowGlobalConstsCPU[i].view = lightViewRow.Transpose();
             m_shadowGlobalConstsCPU[i].proj = lightProjRow.Transpose();
@@ -523,8 +530,8 @@ void ExampleApp::Update(float dt) {
                 m_cursorSphere->UpdateWorldRow(
                     Matrix::CreateTranslation(pickPoint));
             }
-        }
-        if (m_leftButton) {//이동
+        }  
+        if (m_leftButton) {//이동 
             if (m_selectedActor.get() != nullptr) {
                 // Ground Ray 쏴서 그 지점에
                 if (m_leftButton) { // 이동
@@ -541,7 +548,6 @@ void ExampleApp::Update(float dt) {
                             m_selectedActor->m_worldMatrix *
                             Matrix::CreateTranslation(dragTranslation +
                                                       translation));
-
                         // 충돌 지점에 작은 구 그리기
                         // Todo 현재 이동은 안그리기로
                         // 각 Actor에 Bounding Sphere 넣어줘야됨,
@@ -916,29 +922,30 @@ bool ExampleApp::InitializeModel() {
     // Model 정의
     {
         { // auto meshes = GeometryGenerator::ReadFromFile(
-            //     "../Assets/Models/DamagedHelmet/", "DamagedHelmet.gltf");
+             //    "../Assets/Models/DamagedHelmet/", "DamagedHelmet.gltf");
 
-            // auto meshes = GeometryGenerator::ReadFromFile(
-            //     "../Assets/Models/medieval_vagrant_knights/",
-            //     "scene.gltf", true);
+             //auto meshes = GeometryGenerator::ReadFromFile(
+             //    "../Assets/Models/medieval_vagrant_knights/",
+             //    "scene.gltf", true);
 
             // 컴퓨터가 느릴 때는 간단한 물체로 테스트 하세요.
-            vector<MeshData> meshes = {
-                GeometryGenerator::MakeSphere(0.4f, 50, 50)};
+            //vector<MeshData> meshes = {
+            //    GeometryGenerator::MakeSphere(0.4f, 50, 50)};
 
-            // string path =
-            // "../Assets/Characters/armored-female-future-soldier/"; auto
-            // meshes = GeometryGenerator::ReadFromFile(path,
-            // "angel_armor.fbx"); meshes[0].albedoTextureFilename = path +
-            // "/angel_armor_albedo.jpg"; meshes[0].emissiveTextureFilename
-            // = path +
-            // "/angel_armor_e.jpg"; meshes[0].metallicTextureFilename =
-            // path +
-            // "/angel_armor_metalness.jpg"; meshes[0].normalTextureFilename
-            // = path
-            // + "/angel_armor_normal.jpg";
-            // meshes[0].roughnessTextureFilename =
-            //     path + "/angel_armor_roughness.jpg";
+             string path =
+             "../Assets/Characters/armored-female-future-soldier/";
+             auto meshes = GeometryGenerator::ReadFromFile(path,
+             "angel_armor.fbx"); 
+             meshes[0].albedoTextureFilename = path +
+             "/angel_armor_albedo.jpg"; meshes[0].emissiveTextureFilename
+             = path +
+             "/angel_armor_e.jpg"; meshes[0].metallicTextureFilename =
+             path +
+             "/angel_armor_metalness.jpg"; meshes[0].normalTextureFilename
+             = path
+             + "/angel_armor_normal.jpg";
+             meshes[0].roughnessTextureFilename =
+                 path + "/angel_armor_roughness.jpg";
 
             m_mainObj = make_shared<Model>(m_device, m_context, meshes);
             m_mainObj->m_materialConstsCPU.invertNormalMapY =
@@ -959,7 +966,7 @@ bool ExampleApp::InitializeModel() {
             m_ground->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
             m_ground->m_materialConstsCPU.metallicFactor = 0.5f;
             m_ground->m_materialConstsCPU.roughnessFactor = 0.3f;
-            m_mainObj->m_boundingType = ModelBoundingType::BOX;
+            m_ground->m_boundingType = ModelBoundingType::BOX;
             m_mirror = m_ground;
         }
         // 추가 물체 1
@@ -985,8 +992,8 @@ bool ExampleApp::InitializeModel() {
             m_square->m_materialConstsCPU.roughnessFactor = 0.5f;
             m_square->m_materialConstsCPU.metallicFactor = 0.9f;
             m_square->m_materialConstsCPU.emissionFactor = Vector3(0.0f);
-            m_square->m_boundingType = ModelBoundingType::BOX;
-            m_square->m_boundingExtent = Vector3(0.2f, 0.2f, 0.2f);
+            m_square->m_boundingType = ModelBoundingType::SPHERE;
+            m_square->m_boundingExtent = Vector3(0.4f, 0.4f, 0.4f);
             m_square->m_boundingRadius = 0.2f;
         }
         // Light Model

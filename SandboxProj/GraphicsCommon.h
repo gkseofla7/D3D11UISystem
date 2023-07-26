@@ -35,6 +35,7 @@ extern ComPtr<ID3D11VertexShader> skyboxVS;
 extern ComPtr<ID3D11VertexShader> samplingVS;
 extern ComPtr<ID3D11VertexShader> normalVS;
 extern ComPtr<ID3D11VertexShader> depthOnlyVS;
+extern ComPtr<ID3D11VertexShader> billboardVS;
 extern ComPtr<ID3D11PixelShader> basicPS;
 extern ComPtr<ID3D11PixelShader> skyboxPS;
 extern ComPtr<ID3D11PixelShader> combinePS;
@@ -43,13 +44,16 @@ extern ComPtr<ID3D11PixelShader> bloomUpPS;
 extern ComPtr<ID3D11PixelShader> normalPS;
 extern ComPtr<ID3D11PixelShader> depthOnlyPS;
 extern ComPtr<ID3D11PixelShader> postEffectsPS;
+extern ComPtr<ID3D11PixelShader> fireballPS;
 extern ComPtr<ID3D11GeometryShader> normalGS;
+extern ComPtr<ID3D11GeometryShader> billboardGS;
 
 // Input Layouts
 extern ComPtr<ID3D11InputLayout> basicIL;
 extern ComPtr<ID3D11InputLayout> samplingIL;
 extern ComPtr<ID3D11InputLayout> skyboxIL;
 extern ComPtr<ID3D11InputLayout> postProcessingIL;
+extern ComPtr<ID3D11InputLayout> billboardIL;
 
 // Blend States
 extern ComPtr<ID3D11BlendState> mirrorBS;

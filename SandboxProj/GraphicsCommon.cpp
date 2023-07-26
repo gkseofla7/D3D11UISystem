@@ -33,6 +33,7 @@ ComPtr<ID3D11VertexShader> samplingVS;
 ComPtr<ID3D11VertexShader> uibuttonVS;
 ComPtr<ID3D11VertexShader> normalVS;
 ComPtr<ID3D11VertexShader> depthOnlyVS;
+ComPtr<ID3D11VertexShader> billboardVS;
 
 ComPtr<ID3D11PixelShader> basicPS;
 ComPtr<ID3D11PixelShader> skyboxPS;
@@ -43,16 +44,19 @@ ComPtr<ID3D11PixelShader> normalPS;
 ComPtr<ID3D11PixelShader> depthOnlyPS;
 ComPtr<ID3D11PixelShader> postEffectsPS;
 ComPtr<ID3D11PixelShader> samplingPS;
+ComPtr<ID3D11PixelShader> fireballPS;
 ;
 
 
 ComPtr<ID3D11GeometryShader> normalGS;
+ComPtr<ID3D11GeometryShader> billboardGS;
 
 // Input Layouts
 ComPtr<ID3D11InputLayout> basicIL;
 ComPtr<ID3D11InputLayout> samplingIL;
 ComPtr<ID3D11InputLayout> skyboxIL;
 ComPtr<ID3D11InputLayout> postProcessingIL;
+ComPtr<ID3D11InputLayout> billboardIL;
 
 // Graphics Pipeline States
 GraphicsPSO defaultSolidPSO;
@@ -72,6 +76,7 @@ GraphicsPSO postEffectsPSO;
 GraphicsPSO postProcessingPSO;
 GraphicsPSO uiPSO;
 GraphicsPSO uiButtonPSO;
+GraphicsPSO fireballPSO;
 
 } // namespace Graphics
 
@@ -295,6 +300,11 @@ void Graphics::InitShaders(ComPtr<ID3D11Device> &device) {
          D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
+    vector<D3D11_INPUT_ELEMENT_DESC> billboardIE = {
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, // Vector4
+         D3D11_INPUT_PER_VERTEX_DATA, 0}
+    };
+
     D3D11Utils::CreateVertexShaderAndInputLayout(device, L"BasicVS.hlsl",
                                                  basicIEs, basicVS, basicIL);
     D3D11Utils::CreateVertexShaderAndInputLayout(device, L"NormalVS.hlsl",
@@ -307,6 +317,9 @@ void Graphics::InitShaders(ComPtr<ID3D11Device> &device) {
                                                  skyboxIE, skyboxVS, skyboxIL);
     D3D11Utils::CreateVertexShaderAndInputLayout(
         device, L"DepthOnlyVS.hlsl", basicIEs, depthOnlyVS, skyboxIL);
+    D3D11Utils::CreateVertexShaderAndInputLayout(
+        device, L"BillboardPointsVertexShader.hlsl", billboardIE, billboardVS,
+        billboardIL);
 
     D3D11Utils::CreatePixelShader(device, L"BasicPS.hlsl", basicPS);
     D3D11Utils::CreatePixelShader(device, L"NormalPS.hlsl", normalPS);
@@ -317,8 +330,10 @@ void Graphics::InitShaders(ComPtr<ID3D11Device> &device) {
     D3D11Utils::CreatePixelShader(device, L"DepthOnlyPS.hlsl", depthOnlyPS);
     D3D11Utils::CreatePixelShader(device, L"PostEffectsPS.hlsl", postEffectsPS);
     D3D11Utils::CreatePixelShader(device, L"SamplingPS.hlsl", samplingPS);
+    D3D11Utils::CreatePixelShader(device, L"FireballPixelShader.hlsl", fireballPS);
 
     D3D11Utils::CreateGeometryShader(device, L"NormalGS.hlsl", normalGS);
+    D3D11Utils::CreateGeometryShader(device, L"BillboardPointsGeometryShader.hlsl", billboardGS);
 }
 
 void Graphics::InitPipelineStates(ComPtr<ID3D11Device> &device) {
@@ -418,6 +433,13 @@ void Graphics::InitPipelineStates(ComPtr<ID3D11Device> &device) {
     // uiButtonPSO
     uiButtonPSO = uiPSO;
     uiButtonPSO.m_vertexShader = uibuttonVS;
+
+    //fireball PSO
+    defaultSolidPSO.m_vertexShader = billboardVS;
+    defaultSolidPSO.m_inputLayout = billboardIL;
+    defaultSolidPSO.m_pixelShader = fireballPS;
+    defaultSolidPSO.m_rasterizerState = solidRS;
+    defaultSolidPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
 }
 
 } // namespace hlab

@@ -346,7 +346,7 @@ void AppBase::CreateDepthBuffers() {
             m_shadowSRVs[i].GetAddressOf()));
     }
 }
-
+ 
 void AppBase::SetPipelineState(const GraphicsPSO &pso) {
 
     m_context->VSSetShader(pso.m_vertexShader.Get(), 0, 0);

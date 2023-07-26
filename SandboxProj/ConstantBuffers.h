@@ -115,7 +115,11 @@ __declspec(align(256)) struct GlobalConstants {
 
     Light lights[MAX_LIGHTS];
 };
-
+__declspec(align(256)) struct BillboardPointsConstantData {
+    float width;
+    float time = 0.0f;
+    Vector2 padding;
+};
 // register(b3) »ç¿ë, PostEffectsPS.hlsl
 __declspec(align(256)) struct PostEffectsConstants {
     int mode = 1; // 1: Rendered image, 2: DepthOnly
