@@ -1,13 +1,12 @@
+#include "Common.hlsli" // 쉐이더에서도 include 사용 가능
 cbuffer BillboardPointsConstantData : register(b0)
 {
-    float3 eyeWorld; // For geometry shader
-    float width; // For geometry shader
-    Matrix model; // For vertex shader
-    Matrix view; // For vertex shader
-    Matrix proj; // For vertex shader
+    float width;
+    float time;
+    float2 padding;
 };
 
-struct VertexShaderInput
+struct BillboardVertexShaderInput
 {
     float4 pos : POSITION; // 모델 좌표계의 위치 position
 };
@@ -17,7 +16,7 @@ struct GeometryShaderInput
     float4 pos : SV_POSITION; // Screen position
 };
 
-GeometryShaderInput main(VertexShaderInput input)
+GeometryShaderInput main(BillboardVertexShaderInput input)
 {
     GeometryShaderInput output;
     

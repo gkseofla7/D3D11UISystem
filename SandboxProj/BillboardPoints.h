@@ -20,6 +20,14 @@ static_assert((sizeof(BillboardPointsConstantData) % 16) == 0,
 
 class BillboardPoints {
   public:
+    BillboardPoints() {}
+
+    BillboardPoints(
+        ComPtr<ID3D11Device>& device, ComPtr<ID3D11DeviceContext>& context,
+        const std::vector<Vector4>& points, const float width,
+                    std::vector<std::string> filename) {
+        Initialize(device, context, points, width, filename);
+    }
     void Initialize(ComPtr<ID3D11Device> &device,
                     ComPtr<ID3D11DeviceContext>& context, // L"BillboardPointsPixelShader.hlsl"
                     const std::vector<Vector4> &points, const float width,

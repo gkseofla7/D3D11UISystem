@@ -11,6 +11,7 @@
 #include "Model.h"
 #include "DragDropButton.h"
 #include "Actor.h"
+#include "BillboardPoints.h"
 
 
 namespace hlab {
@@ -25,6 +26,7 @@ class ExampleApp : public AppBase {
     virtual bool Initialize() override;
     bool InitializeModel();
     bool InitializeObject();
+    bool InitializeUI();
     virtual void UpdateGUI() override;
     virtual void Update(float dt) override;
     virtual void Render() override;
@@ -45,6 +47,8 @@ class ExampleApp : public AppBase {
     
     shared_ptr<Model> m_sphere;
     shared_ptr<Model> m_square;
+
+    shared_ptr<BillboardPoints> m_sun;
 
     shared_ptr<Actor> m_lightSphere[MAX_LIGHTS];
     shared_ptr<Actor> m_mainActor;

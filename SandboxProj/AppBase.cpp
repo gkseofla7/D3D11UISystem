@@ -338,7 +338,7 @@ void AppBase::CreateDepthBuffers() {
     srvDesc.Texture2D.MipLevels = 1;
     ThrowIfFailed(m_device->CreateShaderResourceView(
         m_depthOnlyBuffer.Get(), &srvDesc, m_depthOnlySRV.GetAddressOf()));
-
+     
     // 그림자 SRVs
     for (int i = 0; i < MAX_LIGHTS; i++) {
         ThrowIfFailed(m_device->CreateShaderResourceView(
@@ -346,7 +346,7 @@ void AppBase::CreateDepthBuffers() {
             m_shadowSRVs[i].GetAddressOf()));
     }
 }
- 
+  
 void AppBase::SetPipelineState(const GraphicsPSO &pso) {
 
     m_context->VSSetShader(pso.m_vertexShader.Get(), 0, 0);

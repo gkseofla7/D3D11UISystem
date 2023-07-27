@@ -18,7 +18,7 @@ cbuffer MaterialConstants : register(b0)
     float roughnessFactor;
     float metallicFactor;
     float3 emissionFactor;
-
+     
     int useAlbedoMap;
     int useNormalMap;
     int useAOMap; // Ambient Occlusion

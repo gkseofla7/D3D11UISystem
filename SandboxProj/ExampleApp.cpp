@@ -128,131 +128,14 @@ bool ExampleApp::Initialize() {
     if (!InitializeObject()) {
         return false;
     }
-
+    if (!InitializeUI()) {
+        return false;
+    }
     // 후처리용 화면 사각형
     {
         MeshData meshData = GeometryGenerator::MakeSquare();
         m_screenSquare =
             make_shared<Model>(m_device, m_context, vector{meshData});
-    }
-    
-
-
-
-    //UI 화면 사각형
-    { 
-        MeshData meshData = GeometryGenerator::MakeSquare();
-        meshData.vertices[0].position = Vector3(-0.5f, -0.5f, 0.0f);
-        meshData.vertices[1].position = Vector3(0.5f, -0.5f, 0.0f);
-        meshData.vertices[2].position = Vector3(0.5f, -1.0f, 0.0f);
-        meshData.vertices[3].position = Vector3(-0.5f, -1.0f, 0.0f);
-        meshData.albedoTextureFilename =
-             "../Assets/Textures/UITexture.jpg";
-
-        
-        for (int i = 0; i< 4 ;i++) {
-            if (i ==0) {
-                m_uiMaxX = meshData.vertices[i].position.x;
-                m_uiMinX = meshData.vertices[i].position.x;
-                m_uiMaxY = meshData.vertices[i].position.y;
-                m_uiMinY = meshData.vertices[i].position.y;
-                continue;
-            }
-            m_uiMaxX = max(m_uiMaxX, meshData.vertices[i].position.x);
-            m_uiMinX = min(m_uiMinX, meshData.vertices[i].position.x);
-            m_uiMaxY = max(m_uiMaxY, meshData.vertices[i].position.y);
-            m_uiMinY = min(m_uiMaxY, meshData.vertices[i].position.y);
-        
-        }
-
-        m_uiSquare =
-            make_shared<Model>(m_device, m_context, vector{meshData});
-    }
-    //UI 버튼
-    {
-        Vector3 startPos = Vector3(m_uiMinX, (m_uiMinY+m_uiMaxY)/2.f, 0.0f);
-        const float offset = 0.1f;
-        const float squareLength = 0.1f;
-        const int squareNum = 4;
-        
-        {
-            float uiX = m_uiMaxX - m_uiMinX;
-            float uiY = m_uiMaxY - m_uiMinY;
-            float xSquareDist = (uiX - 2.0f * offset) / (squareNum);
-            Vector3 Pos = Vector3(0.f, 0.f, 0.f);
-            MeshData meshData = GeometryGenerator::MakeSquare();
-            meshData.vertices[0].position = Vector3(
-                Pos.x - squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
-            meshData.vertices[1].position = Vector3(
-                Pos.x - squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
-            meshData.vertices[2].position = Vector3(
-                Pos.x + squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
-            meshData.vertices[3].position = Vector3(
-                Pos.x + squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
-            meshData
-                .albedoTextureFilename = /*"../Assets/Textures/UITexture.jpg";*/
-                "../Assets/Textures/PBR/older-wood-flooring-ue/"
-                "older-wood-flooring_roughness.png";
-            m_uiButton =
-                make_shared<Model>(m_device, m_context, vector{meshData});
-
-            for (int i = 0; i < squareNum; i++) {
-                shared_ptr<DragDropButton> uiButton =
-                    make_shared<DragDropButton>(m_device, m_context,
-                                                m_uiButton);
-                m_uiButtons.push_back(uiButton);
-            }
-
-            startPos.x = startPos.x + offset + xSquareDist / 2.f;
-            for (int i = 0; i < squareNum; i++) {
-                Vector3 Pos = startPos;
-                Pos.x += +xSquareDist * i;
-                m_uiButtons[i]->m_buttonConstsCPU.buttonLength = squareLength;
-                m_uiButtons[i]->m_buttonConstsCPU.screenPos =
-                    Vector2(Pos.x, Pos.y);
-                //TODO
-                
-                m_uiButtons[i]->UpdateConstantBuffers(m_device, m_context);
-            }
-
-            m_uiButtons[0]->m_createModel = m_sphere;
-            m_uiButtons[1]->m_createModel = m_mainObj;
-            m_uiButtons[2]->m_createModel = m_square;
-            m_uiButtons[3]->m_createModel = m_sphere;//나중에 거울로
-
-
-        }
-
-
-        {
-        //Todo
-            //vector<MeshData> meshData = {
-            //    GeometryGenerator::MakeSphere(0.4f, 50, 50)};
-            //m_square = make_shared<Model>(m_device, m_context, meshData);
-            //m_square->m_materialConstsCPU.invertNormalMapY =
-            //    true; // GLTF는 true로
-            //m_square->m_materialConstsCPU.albedoFactor = Vector3(1.0f);
-            //m_square->m_materialConstsCPU.roughnessFactor = 0.3f;
-            //m_square->m_materialConstsCPU.metallicFactor = 0.8f;
-            //// 아싸리 Model을
-            //for (int i = 0; i < squareNum; i++) {
-
-            //    shared_ptr<Actor> actor =
-            //        make_shared<Actor>(m_device, m_context, m_square);
-            //    m_dynamicActors.push_back(actor);
-            //}
-        }
-        {
-            Vector3 Pos = Vector3(0.f, 0.f, 0.f);
-            m_dragdropButton =
-                make_shared<DragDropButton>(m_device, m_context, m_uiButton);
-            m_dragdropButton->m_buttonConstsCPU.screenPos =
-                Vector2(Pos.x, Pos.y);
-            m_dragdropButton->m_buttonConstsCPU.buttonLength = squareLength;
-            m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
-        }
-
-
     }
     // 환경 박스 초기화
     {
@@ -260,7 +143,6 @@ bool ExampleApp::Initialize() {
         std::reverse(skyboxMesh.indices.begin(), skyboxMesh.indices.end());
         m_skybox = make_shared<Model>(m_device, m_context, vector{skyboxMesh});
     }
-
     // 조명 설정
     {
         // 조명 0은 고정
@@ -319,6 +201,14 @@ bool ExampleApp::Initialize() {
     {
         // 32비트 float로 변환
         float floatValue = HALFToFloat(m_pickColor[0]);
+    }
+
+    {
+        float width = 4.f;
+        std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
+        m_sun = make_shared<BillboardPoints>(
+            m_device, m_context, vector{Vector4(1.f, 1.f, 1.f, 1.f)}, width,
+            vector{textureStr});
     }
 
     return true;
@@ -594,7 +484,7 @@ void ExampleApp::Render() {
                                      1.0f, 0);
     AppBase::SetPipelineState(Graphics::depthOnlyPSO);
     AppBase::SetGlobalConsts(m_globalConstsGPU);
-
+     
     for (auto &i : m_basicList)
         i->Render(m_context);
     //
@@ -651,7 +541,6 @@ void ExampleApp::Render() {
         i->Render(m_context);
     }
 
-
     //Todo 잠깐 거울은 Pick 못하는걸로 테스트
     PickIndexColorFromRT();
 
@@ -659,6 +548,8 @@ void ExampleApp::Render() {
     if (m_mirrorAlpha == 1.0f)
         m_mirrorActor->Render(m_context);
 
+    AppBase::SetPipelineState(Graphics::fireballPSO);
+    m_sun->Render(m_context);
 
 
     AppBase::SetPipelineState(Graphics::normalsPSO);
@@ -1073,6 +964,89 @@ bool ExampleApp::InitializeObject() {
     return true;
 }
 
+bool ExampleApp::InitializeUI() {
+
+            MeshData meshData = GeometryGenerator::MakeSquare();
+    meshData.vertices[0].position = Vector3(-0.5f, -0.5f, 0.0f);
+    meshData.vertices[1].position = Vector3(0.5f, -0.5f, 0.0f);
+    meshData.vertices[2].position = Vector3(0.5f, -1.0f, 0.0f);
+    meshData.vertices[3].position = Vector3(-0.5f, -1.0f, 0.0f);
+    meshData.albedoTextureFilename = "../Assets/Textures/UITexture.jpg";
+
+    for (int i = 0; i < 4; i++) {
+        if (i == 0) {
+            m_uiMaxX = meshData.vertices[i].position.x;
+            m_uiMinX = meshData.vertices[i].position.x;
+            m_uiMaxY = meshData.vertices[i].position.y;
+            m_uiMinY = meshData.vertices[i].position.y;
+            continue;
+        }
+        m_uiMaxX = max(m_uiMaxX, meshData.vertices[i].position.x);
+        m_uiMinX = min(m_uiMinX, meshData.vertices[i].position.x);
+        m_uiMaxY = max(m_uiMaxY, meshData.vertices[i].position.y);
+        m_uiMinY = min(m_uiMaxY, meshData.vertices[i].position.y);
+    }
+
+    m_uiSquare = make_shared<Model>(m_device, m_context, vector{meshData});
+
+    //Model이 생성된 뒤에
+    Vector3 startPos = Vector3(m_uiMinX, (m_uiMinY + m_uiMaxY) / 2.f, 0.0f);
+    const float offset = 0.1f;
+    const float squareLength = 0.1f;
+    const int squareNum = 4;
+
+    {
+        float uiX = m_uiMaxX - m_uiMinX;
+        float uiY = m_uiMaxY - m_uiMinY;
+        float xSquareDist = (uiX - 2.0f * offset) / (squareNum);
+        Vector3 Pos = Vector3(0.f, 0.f, 0.f);
+        MeshData meshData = GeometryGenerator::MakeSquare();
+        meshData.vertices[0].position = Vector3(
+            Pos.x - squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
+        meshData.vertices[1].position = Vector3(
+            Pos.x - squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
+        meshData.vertices[2].position = Vector3(
+            Pos.x + squareLength / 2.f, Pos.y + squareLength / 2.f, 0.f);
+        meshData.vertices[3].position = Vector3(
+            Pos.x + squareLength / 2.f, Pos.y - squareLength / 2.f, 0.f);
+        meshData.albedoTextureFilename = /*"../Assets/Textures/UITexture.jpg";*/
+            "../Assets/Textures/PBR/older-wood-flooring-ue/"
+            "older-wood-flooring_roughness.png";
+        m_uiButton = make_shared<Model>(m_device, m_context, vector{meshData});
+
+        for (int i = 0; i < squareNum; i++) {
+            shared_ptr<DragDropButton> uiButton =
+                make_shared<DragDropButton>(m_device, m_context, m_uiButton);
+            m_uiButtons.push_back(uiButton);
+        }
+
+        startPos.x = startPos.x + offset + xSquareDist / 2.f;
+        for (int i = 0; i < squareNum; i++) {
+            Vector3 Pos = startPos;
+            Pos.x += +xSquareDist * i;
+            m_uiButtons[i]->m_buttonConstsCPU.buttonLength = squareLength;
+            m_uiButtons[i]->m_buttonConstsCPU.screenPos = Vector2(Pos.x, Pos.y);
+            // TODO
+
+            m_uiButtons[i]->UpdateConstantBuffers(m_device, m_context);
+        }
+
+        m_uiButtons[0]->m_createModel = m_sphere;
+        m_uiButtons[1]->m_createModel = m_mainObj;
+        m_uiButtons[2]->m_createModel = m_square;
+        m_uiButtons[3]->m_createModel = m_sphere; // 나중에 거울로
+    }
+    {
+        Vector3 Pos = Vector3(0.f, 0.f, 0.f);
+        m_dragdropButton =
+            make_shared<DragDropButton>(m_device, m_context, m_uiButton);
+        m_dragdropButton->m_buttonConstsCPU.screenPos = Vector2(Pos.x, Pos.y);
+        m_dragdropButton->m_buttonConstsCPU.buttonLength = squareLength;
+        m_dragdropButton->UpdateConstantBuffers(m_device, m_context);
+    }
+
+    return true;
+}
 
 
 } // namespace hlab

@@ -3,14 +3,12 @@
 
 // Stream-Output Object
 // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-so-type
-
+#include "Common.hlsli" // 쉐이더에서도 include 사용 가능
 cbuffer BillboardPointsConstantData : register(b0)
 {
-    float3 eyeWorld;
     float width;
-    Matrix model; // For vertex shader
-    Matrix view; // For vertex shader
-    Matrix proj; // For vertex shader
+    float time;
+    float2 padding;
 };
 
 struct GeometryShaderInput
@@ -18,7 +16,7 @@ struct GeometryShaderInput
     float4 pos : SV_POSITION;
 };
 
-struct PixelShaderInput
+struct BillboardPixelShaderInput
 {
     float4 pos : SV_POSITION; // Screen position
     float4 posWorld : POSITION0;
@@ -29,7 +27,7 @@ struct PixelShaderInput
 
 [maxvertexcount(4)]
 void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
-                              inout TriangleStream<PixelShaderInput> outputStream)
+                              inout TriangleStream<BillboardPixelShaderInput> outputStream)
 {
     float hw = 0.5 * width;
     
@@ -41,7 +39,7 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
     // 시점에서 빌보드를 바라보는 방향에서는 왼쪽 (텍스춰 좌표 주의)
     float4 right = float4(cross(up.xyz, normalize(front.xyz)), 0.0);
     
-    PixelShaderInput output;
+    BillboardPixelShaderInput output;
     
     output.center = input[0].pos; // 빌보드의 중심
     

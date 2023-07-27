@@ -435,11 +435,11 @@ void Graphics::InitPipelineStates(ComPtr<ID3D11Device> &device) {
     uiButtonPSO.m_vertexShader = uibuttonVS;
 
     //fireball PSO
-    defaultSolidPSO.m_vertexShader = billboardVS;
-    defaultSolidPSO.m_inputLayout = billboardIL;
-    defaultSolidPSO.m_pixelShader = fireballPS;
-    defaultSolidPSO.m_rasterizerState = solidRS;
-    defaultSolidPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+    fireballPSO.m_vertexShader = billboardVS;
+    fireballPSO.m_inputLayout = billboardIL;
+    fireballPSO.m_pixelShader = fireballPS;
+    fireballPSO.m_rasterizerState = solidRS;
+    fireballPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
 }
 
 } // namespace hlab

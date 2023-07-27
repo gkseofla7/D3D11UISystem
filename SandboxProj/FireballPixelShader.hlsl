@@ -1,18 +1,23 @@
+#include "Common.hlsli" // 쉐이더에서도 include 사용 가능
 cbuffer BillboardPointsConstantData : register(b0)
 {
-    float3 eyeWorld;
     float width;
-    Matrix model; // For vertex shader
-    Matrix view; // For vertex shader
-    Matrix proj; // For vertex shader
     float time;
-    float3 padding;
+    float2 padding;
+};
+
+cbuffer ActorConstants : register(b10)
+{
+    matrix world; // Model(또는 Object) 좌표계 -> World로 변환
+    matrix worldIT;
+    float3 indexColor;
+    float dummy3;
 };
 
 Texture2DArray g_texArray : register(t0);
 SamplerState g_sampler : register(s0);
 
-struct PixelShaderInput
+struct BillboardPixelShaderInput
 {
     float4 pos : SV_POSITION; // Screen position
     float4 posWorld : POSITION0;
@@ -77,7 +82,7 @@ float intersect_ray_sphere(float3 origin, float3 direction, float3 center, float
 }
 
 // void mainImage(out float4 fragColor, in float2 fragCoord)
-PixelShaderOutput main(PixelShaderInput input)
+PixelShaderOutput main(BillboardPixelShaderInput input)
 {
     // TODO: 
     float currentTime = time;
@@ -107,7 +112,7 @@ PixelShaderOutput main(PixelShaderInput input)
             normal = mul(float4(normal, 1.), mul(wind_mat, tex_mat)).xyz;
             
             float2 uv = float2(1.0 / float(i) * float2(atan2(normal.x, normal.z) / radians(90.0), normal.y));
-            float alpha = g_texArray.Sample(g_sampler, float3(uv, 0)).r;
+            float alpha = g_texArray.Sample(linearClampSampler, float3(uv, 0)).r;
             intensity += step(1.0 - float(i) / 6.0, alpha) * 0.6 * alpha * max(0., dot(float3(0, 0, 1.), normal) + 1.0);
         }
     }
