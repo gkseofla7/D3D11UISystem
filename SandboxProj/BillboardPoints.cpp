@@ -30,7 +30,6 @@ void BillboardPoints::Render(ComPtr<ID3D11DeviceContext> &context) {
     //context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
     //context->PSSetShader(m_pixelShader.Get(), 0, 0);
     context->PSSetShaderResources(0, 1, m_texArraySRV.GetAddressOf());
-    //context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
 
     context->VSSetConstantBuffers(0, 1,
                                   m_billboardPointsConstsGPU.GetAddressOf());

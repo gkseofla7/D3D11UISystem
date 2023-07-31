@@ -26,7 +26,10 @@ Vector3 Camera::GetEyePos() { return m_position; }
 void Camera::UpdateViewDir() {
     // 이동할 때 기준이 되는 정면/오른쪽 방향 계산
     m_viewDir = Vector3::Transform(Vector3(0.0f, 0.0f, 1.0f),
-                                   Matrix::CreateRotationY(this->m_yaw));
+                                   Matrix::CreateRotationY(this->m_yaw)*Matrix::CreateRotationX(this->m_pitch));
+    m_upDir = Vector3::Transform(Vector3(0.0f, 1.0f, 0.0f),
+                                 Matrix::CreateRotationY(this->m_yaw) *
+                                     Matrix::CreateRotationX(this->m_pitch));
     m_rightDir = m_upDir.Cross(m_viewDir);
 }
 

@@ -3,19 +3,18 @@ cbuffer BillboardPointsConstantData : register(b0)
 {
     float width;
     float time;
-    float2 padding;
+    float3 cameraUpDir;
+    float3 padding;
 };
 
-cbuffer ActorConstants : register(b10)
-{
-    matrix world; // Model(또는 Object) 좌표계 -> World로 변환
-    matrix worldIT;
-    float3 indexColor;
-    float dummy3;
-};
-
+//cbuffer ActorConstants : register(b10)
+//{
+//    matrix world; // Model(또는 Object) 좌표계 -> World로 변환
+//    matrix worldIT;
+//    float3 indexColor;
+//    float dummy3;
+//};
 Texture2DArray g_texArray : register(t0);
-SamplerState g_sampler : register(s0);
 
 struct BillboardPixelShaderInput
 {

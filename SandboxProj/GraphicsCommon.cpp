@@ -44,6 +44,7 @@ ComPtr<ID3D11PixelShader> normalPS;
 ComPtr<ID3D11PixelShader> depthOnlyPS;
 ComPtr<ID3D11PixelShader> postEffectsPS;
 ComPtr<ID3D11PixelShader> samplingPS;
+ComPtr<ID3D11PixelShader> billboardPS;
 ComPtr<ID3D11PixelShader> fireballPS;
 ;
 
@@ -330,6 +331,7 @@ void Graphics::InitShaders(ComPtr<ID3D11Device> &device) {
     D3D11Utils::CreatePixelShader(device, L"DepthOnlyPS.hlsl", depthOnlyPS);
     D3D11Utils::CreatePixelShader(device, L"PostEffectsPS.hlsl", postEffectsPS);
     D3D11Utils::CreatePixelShader(device, L"SamplingPS.hlsl", samplingPS);
+    D3D11Utils::CreatePixelShader(device, L"BillboardPointsPixelShader.hlsl", billboardPS);
     D3D11Utils::CreatePixelShader(device, L"FireballPixelShader.hlsl", fireballPS);
 
     D3D11Utils::CreateGeometryShader(device, L"NormalGS.hlsl", normalGS);
@@ -436,9 +438,10 @@ void Graphics::InitPipelineStates(ComPtr<ID3D11Device> &device) {
 
     //fireball PSO
     fireballPSO.m_vertexShader = billboardVS;
+    fireballPSO.m_geometryShader = billboardGS;
     fireballPSO.m_inputLayout = billboardIL;
     fireballPSO.m_pixelShader = fireballPS;
-    fireballPSO.m_rasterizerState = solidRS;
+    fireballPSO.m_rasterizerState = solidCCWRS;
     fireballPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
 }
 

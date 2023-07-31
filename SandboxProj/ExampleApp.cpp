@@ -204,10 +204,10 @@ bool ExampleApp::Initialize() {
     }
 
     {
-        float width = 4.f;
+        float width = 1.5f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(1.f, 1.f, 1.f, 1.f)}, width,
+            m_device, m_context, vector{Vector4(0.0f, 1.5f, 1.1f, 1.f)}, width,
             vector{textureStr});
     }
 
@@ -450,8 +450,11 @@ void ExampleApp::Update(float dt) {
         }
     } else {
         m_cursorSphere->m_isVisible = false;
-    }
-   
+    } 
+    
+    m_sun->m_billboardPointsConstsCPU.time += dt;
+    m_sun->m_billboardPointsConstsCPU.cameraUpDir = m_camera.GetUpVector();
+    m_sun->UpdateConstantBuffers(m_device, m_context);
 
     for (auto &i : m_basicList) {
         i->UpdateConstantBuffers(m_device, m_context);
@@ -548,7 +551,7 @@ void ExampleApp::Render() {
     if (m_mirrorAlpha == 1.0f)
         m_mirrorActor->Render(m_context);
 
-    AppBase::SetPipelineState(Graphics::fireballPSO);
+    AppBase::SetPipelineState(Graphics::fireballPSO);  
     m_sun->Render(m_context);
 
 

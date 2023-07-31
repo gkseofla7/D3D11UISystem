@@ -8,7 +8,8 @@ cbuffer BillboardPointsConstantData : register(b0)
 {
     float width;
     float time;
-    float2 padding;
+    float3 cameraUpDir;
+    float3 padding;
 };
 
 struct GeometryShaderInput
@@ -31,13 +32,17 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
 {
     float hw = 0.5 * width;
     
-    float4 up = float4(0.0, 1.0, 0.0, 0.0);
-    float4 front = float4(eyeWorld, 1.0) - input[0].pos;
-    front.w = 0.0; // 벡터
     
+    float4 front = float4(eyeWorld, 1.0) - input[0].pos;
+    //float3 cameraRight = normalize(cameraRightDir);
+    front.w = 0.0; // 벡터
+    //float4 up = float4(cross(normalize(front.xyz), cameraRight), 0.0);
+    float4 up = float4(normalize(cameraUpDir), 0.0);
     // 빌보드가 시점을 바라보는 방향 기준으로 오른쪽
     // 시점에서 빌보드를 바라보는 방향에서는 왼쪽 (텍스춰 좌표 주의)
     float4 right = float4(cross(up.xyz, normalize(front.xyz)), 0.0);
+    //float4 right = float4(cameraRight, 0.0);
+    
     
     BillboardPixelShaderInput output;
     

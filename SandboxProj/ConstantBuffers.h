@@ -118,7 +118,8 @@ __declspec(align(256)) struct GlobalConstants {
 __declspec(align(256)) struct BillboardPointsConstantData {
     float width;
     float time = 0.0f;
-    Vector2 padding;
+    Vector3 cameraUpDir;
+    Vector3 padding;
 };
 // register(b3) »ç¿ë, PostEffectsPS.hlsl
 __declspec(align(256)) struct PostEffectsConstants {

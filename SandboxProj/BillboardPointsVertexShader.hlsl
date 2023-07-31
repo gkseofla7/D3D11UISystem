@@ -3,7 +3,8 @@ cbuffer BillboardPointsConstantData : register(b0)
 {
     float width;
     float time;
-    float2 padding;
+    float3 cameraUpDir;
+    float3 padding;
 };
 
 struct BillboardVertexShaderInput
