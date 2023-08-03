@@ -4,14 +4,14 @@
 // Stream-Output Object
 // https://learn.microsoft.com/en-us/windows/win32/direct3dhlsl/dx-graphics-hlsl-so-type
 #include "Common.hlsli" // 쉐이더에서도 include 사용 가능
+
 cbuffer BillboardPointsConstantData : register(b0)
 {
     float width;
     float time;
-    float3 cameraUpDir;
-    float3 padding;
+    matrix world;
+    float2 padding;
 };
-
 struct GeometryShaderInput
 {
     float4 pos : SV_POSITION;

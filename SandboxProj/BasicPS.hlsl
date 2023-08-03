@@ -232,7 +232,7 @@ float3 LightRadiance(Light light, float3 representativePoint, float3 posWorld, f
     // Spot light
     float spotFator = light.type & LIGHT_SPOT
                       ? pow(max(-dot(lightVec, light.direction), 0.0f), light.spotPower)
-                      : 1.0f;
+                      : 1.0f;//가운데서 멀어지면 약해짐
         
     // Distance attenuation
     float att = saturate((light.fallOffEnd - lightDist)
@@ -306,7 +306,7 @@ PixelShaderOutput main(PixelShaderInput input)
             
             float3 representativePoint = L + centerToRay * clamp(lights[i].radius / length(centerToRay), 0., 1.);
             representativePoint += input.posWorld;
-            
+            //그림자 잘그리게 하려고
             float3 lightVec = representativePoint - input.posWorld;
             //float3 lightVec = lights[i].position - input.posWorld;
             

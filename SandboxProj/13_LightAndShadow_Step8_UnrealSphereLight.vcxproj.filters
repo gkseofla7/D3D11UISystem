@@ -26,6 +26,7 @@
     <ClCompile Include="MultipleModel.cpp" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BillboardPoints.cpp" />
+    <ClCompile Include="Sun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppBase.h" />
@@ -49,6 +50,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="IndexColorMaker.h" />
     <ClInclude Include="BillboardPoints.h" />
+    <ClInclude Include="Sun.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

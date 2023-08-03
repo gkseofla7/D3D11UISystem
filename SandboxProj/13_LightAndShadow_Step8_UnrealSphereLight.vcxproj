@@ -149,6 +149,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="MultipleModel.cpp" />
     <ClCompile Include="PostProcess.cpp" />
+    <ClCompile Include="Sun.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="MultipleModel.h" />
     <ClInclude Include="PostProcess.h" />
+    <ClInclude Include="Sun.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>

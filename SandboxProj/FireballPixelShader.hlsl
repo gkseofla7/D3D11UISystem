@@ -1,11 +1,5 @@
 #include "Common.hlsli" // 쉐이더에서도 include 사용 가능
-cbuffer BillboardPointsConstantData : register(b0)
-{
-    float width;
-    float time;
-    float3 cameraUpDir;
-    float3 padding;
-};
+
 
 //cbuffer ActorConstants : register(b10)
 //{
@@ -14,6 +8,15 @@ cbuffer BillboardPointsConstantData : register(b0)
 //    float3 indexColor;
 //    float dummy3;
 //};
+
+cbuffer BillboardPointsConstantData : register(b0)
+{
+    float width;
+    float time;
+    matrix world;
+    float2 padding;
+};
+
 Texture2DArray g_texArray : register(t0);
 
 struct BillboardPixelShaderInput

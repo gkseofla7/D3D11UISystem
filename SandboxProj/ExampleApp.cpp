@@ -166,11 +166,9 @@ bool ExampleApp::Initialize() {
         m_globalConstsCPU.lights[2].type = LIGHT_OFF;
 
                 // 조명 1의 위치와 방향은 Update()에서 설정
-        m_globalConstsCPU.lights[4].radiance = Vector3(5.0f);
-        m_globalConstsCPU.lights[4].spotPower = 3.0f;
-        m_globalConstsCPU.lights[4].fallOffEnd = 20.0f;
-        m_globalConstsCPU.lights[4].radius = 0.02f;
-        m_globalConstsCPU.lights[4].type =
+        m_globalConstsCPU.lights[3].radiance = Vector3(5.0f);
+        m_globalConstsCPU.lights[3].fallOffEnd = 2000.0f;
+        m_globalConstsCPU.lights[3].type =
             LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow
     }
      
@@ -351,6 +349,7 @@ void ExampleApp::UpdateUIButton() {
 
 void ExampleApp::Update(float dt) {
 
+    static const float deltaTheta = 3.14f / 2.f;//10초에 한바퀴~
     // 카메라의 이동
     m_camera.UpdateKeyboard(dt, m_keyPressed);
 
@@ -453,7 +452,8 @@ void ExampleApp::Update(float dt) {
     } 
       
     m_sun->m_billboardPointsConstsCPU.time += dt;
-    m_sun->m_billboardPointsConstsCPU.cameraUpDir = m_camera.GetUpVector();
+    m_sun->m_billboardPointsConstsCPU.world *= 
+        Matrix::CreateFromAxisAngle(Vector3(1.0f, 1.0f, 1.0f), deltaTheta*dt);
     m_sun->UpdateConstantBuffers(m_device, m_context);
 
     for (auto &i : m_basicList) {
@@ -904,10 +904,10 @@ bool ExampleApp::InitializeModel() {
             Vector3(0.0f, 1.0f, 0.0f);
     }
     {
-        float width = 1.5f;
+        float width = 10.f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(0.0f, 1.5f, 1.1f, 1.f)}, width,
+            m_device, m_context, vector{Vector4(10.0f, 4.f, 0.f, 1.f)}, width,
             vector{textureStr});
     }
 

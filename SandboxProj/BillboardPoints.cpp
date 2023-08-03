@@ -14,7 +14,7 @@ void BillboardPoints::Initialize(ComPtr<ID3D11Device> &device,
     m_billboardPointsConstsCPU.width = width;
     D3D11Utils::CreateConstBuffer(device, m_billboardPointsConstsCPU,
                                   m_billboardPointsConstsGPU);
-
+    m_billboardPointsConstsCPU.world = Matrix::Identity;
     D3D11Utils::CreateTextureArray(
          device, context, filenames, m_texArray, m_texArraySRV);
 }

@@ -3,8 +3,8 @@ cbuffer BillboardPointsConstantData : register(b0)
 {
     float width;
     float time;
-    float3 cameraUpDir;
-    float3 padding;
+    matrix world;
+    float2 padding;
 };
 
 struct BillboardVertexShaderInput
@@ -21,8 +21,6 @@ GeometryShaderInput main(BillboardVertexShaderInput input)
 {
     GeometryShaderInput output;
     
-    // Geometry shader로 그대로 넘겨줍니다.
-    output.pos = input.pos;
-    
+    output.pos = mul(input.pos, world);
     return output;
 }

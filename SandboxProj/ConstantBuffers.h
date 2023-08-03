@@ -3,7 +3,8 @@
 #include <directxtk/SimpleMath.h>
 
 // "Common.hlsli"와 동일해야 함
-#define MAX_LIGHTS 3
+#define MAX_LIGHTS 4
+#define SUN 1
 #define LIGHT_OFF 0x00
 #define LIGHT_DIRECTIONAL 0x01
 #define LIGHT_POINT 0x02
@@ -118,8 +119,8 @@ __declspec(align(256)) struct GlobalConstants {
 __declspec(align(256)) struct BillboardPointsConstantData {
     float width;
     float time = 0.0f;
-    Vector3 cameraUpDir;
-    Vector3 padding;
+    Matrix world;
+    Vector2 padding;
 };
 // register(b3) 사용, PostEffectsPS.hlsl
 __declspec(align(256)) struct PostEffectsConstants {
