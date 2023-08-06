@@ -358,7 +358,7 @@ void ExampleApp::Update(float dt) {
     const Matrix reflectRow = Matrix::CreateReflection(m_mirrorPlane);
     const Matrix viewRow = m_camera.GetViewRow();
     const Matrix projRow = m_camera.GetProjRow();
-
+     
     UpdateLights(dt);
 
     // 공용 ConstantBuffer 업데이트
@@ -375,7 +375,7 @@ void ExampleApp::Update(float dt) {
             Matrix::CreateTranslation(m_globalConstsCPU.lights[i].position));
     
     UpdateUIButton();
-
+     
     // 마우스 이동/회전 반영
     // Todo 회전에 경우엔 특정 버튼을 눌렀을 경우에만 ,R로 설정
     if (m_leftButton||m_rightButton) {
@@ -446,22 +446,23 @@ void ExampleApp::Update(float dt) {
                     } 
                 } 
             }
-        }
+        } 
     } else {
         m_cursorSphere->m_isVisible = false;
     } 
       
     m_sun->m_billboardPointsConstsCPU.time += dt;
-    m_sun->m_billboardPointsConstsCPU.world *= 
-        Matrix::CreateFromAxisAngle(Vector3(1.0f, 1.0f, 1.0f), deltaTheta*dt);
+    m_sun
+        ->UpdateWorldRow(m_sun->m_worldMatrix*Matrix::CreateFromAxisAngle(Vector3(1.0f, 1.0f, 1.0f),
+                                                     deltaTheta * dt));
     m_sun->UpdateConstantBuffers(m_device, m_context);
 
     for (auto &i : m_basicList) {
         i->UpdateConstantBuffers(m_device, m_context);
     }
    
-}
-
+} 
+ 
 void ExampleApp::Render() {
     AppBase::SetMainViewport();
 
@@ -487,7 +488,7 @@ void ExampleApp::Render() {
                                      1.0f, 0);
     AppBase::SetPipelineState(Graphics::depthOnlyPSO);
     AppBase::SetGlobalConsts(m_globalConstsGPU);
-     
+      
     for (auto &i : m_basicList)
         i->Render(m_context);
     //
@@ -539,7 +540,7 @@ void ExampleApp::Render() {
     AppBase::SetPipelineState(m_drawAsWire ? Graphics::defaultWirePSO
                                            : Graphics::defaultSolidPSO);
     AppBase::SetGlobalConsts(m_globalConstsGPU);
-
+     
     for (auto &i : m_basicList) {
         i->Render(m_context);
     }
@@ -580,7 +581,7 @@ void ExampleApp::Render() {
 
         m_context->ClearDepthStencilView(m_depthStencilView.Get(),
                                          D3D11_CLEAR_DEPTH, 1.0f, 0);
-
+           
         for (auto &i : m_basicList) {
             i->Render(m_context);
         }
@@ -662,10 +663,10 @@ void ExampleApp::PickIndexColorFromRT() {
     D3D11_MAPPED_SUBRESOURCE ms;
     m_context->Map(m_indexStagingBuffer.Get(), NULL, D3D11_MAP_READ, NULL,
                  &ms); // D3D11_MAP_READ 주의
-
+      
     memcpy(m_pickColor, ms.pData, sizeof(uint16_t) * 4);
     m_context->Unmap(m_indexStagingBuffer.Get(), NULL);
-}
+} 
  
 void ExampleApp::UpdateGUI() {
 

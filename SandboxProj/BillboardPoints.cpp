@@ -14,7 +14,7 @@ void BillboardPoints::Initialize(ComPtr<ID3D11Device> &device,
     m_billboardPointsConstsCPU.width = width;
     D3D11Utils::CreateConstBuffer(device, m_billboardPointsConstsCPU,
                                   m_billboardPointsConstsGPU);
-    m_billboardPointsConstsCPU.world = Matrix::Identity;
+    m_billboardPointsConstsCPU.world = Matrix();
     D3D11Utils::CreateTextureArray(
          device, context, filenames, m_texArray, m_texArraySRV);
 }
@@ -52,4 +52,10 @@ void BillboardPoints::Render(ComPtr<ID3D11DeviceContext> &context) {
     context->Draw(m_indexCount, 0);
 }
 
+
+    void BillboardPoints::UpdateWorldRow(const Matrix &worldRow) {
+    m_worldMatrix = worldRow;
+    Matrix worldITRow = worldRow;
+    m_billboardPointsConstsCPU.world = worldRow.Transpose();
+    }
 } // namespace hlab

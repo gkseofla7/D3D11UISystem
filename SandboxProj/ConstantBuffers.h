@@ -117,10 +117,10 @@ __declspec(align(256)) struct GlobalConstants {
     Light lights[MAX_LIGHTS];
 };
 __declspec(align(256)) struct BillboardPointsConstantData {
-    float width;
+    float width = 1.0f;
     float time = 0.0f;
-    Matrix world;
     Vector2 padding;
+    Matrix world;
 };
 // register(b3) »ç¿ë, PostEffectsPS.hlsl
 __declspec(align(256)) struct PostEffectsConstants {
