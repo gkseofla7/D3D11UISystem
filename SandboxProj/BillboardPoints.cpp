@@ -10,6 +10,8 @@ void BillboardPoints::Initialize(ComPtr<ID3D11Device> &device,
     // Sampler 만들기
     // Geometry shader 초기화하기
     D3D11Utils::CreateVertexBuffer(device, points, m_vertexBuffer);
+    m_startPoint = points[0];
+
     m_indexCount = uint32_t(points.size());
     m_billboardPointsConstsCPU.width = width;
     D3D11Utils::CreateConstBuffer(device, m_billboardPointsConstsCPU,

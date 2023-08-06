@@ -41,6 +41,7 @@ class BillboardPoints {
   public:
     BillboardPointsConstantData m_billboardPointsConstsCPU;
     Matrix m_worldMatrix;
+    Vector4 m_startPoint;
  private:
     // 편의상 ConstantBuffer를 하나만 사용
     ComPtr<ID3D11Buffer> m_billboardPointsConstsGPU;

@@ -146,7 +146,8 @@ bool ExampleApp::Initialize() {
     // 조명 설정
     {
         // 조명 0은 고정
-        m_globalConstsCPU.lights[0].radiance = Vector3(5.0f);
+        //m_globalConstsCPU.lights[0].radiance = Vector3(5.0f);
+        m_globalConstsCPU.lights[0].radiance = Vector3(.1f);
         m_globalConstsCPU.lights[0].position = Vector3(0.0f, 1.5f, 1.1f);
         m_globalConstsCPU.lights[0].direction = Vector3(0.0f, -1.0f, 0.0f);
         m_globalConstsCPU.lights[0].spotPower = 3.0f;
@@ -155,7 +156,8 @@ bool ExampleApp::Initialize() {
             LIGHT_SPOT | LIGHT_SHADOW; // Point with shadow
 
         // 조명 1의 위치와 방향은 Update()에서 설정
-        m_globalConstsCPU.lights[1].radiance = Vector3(5.0f);
+        //m_globalConstsCPU.lights[1].radiance = Vector3(5.0f);
+        m_globalConstsCPU.lights[1].radiance = Vector3(.1f);
         m_globalConstsCPU.lights[1].spotPower = 3.0f;
         m_globalConstsCPU.lights[1].fallOffEnd = 20.0f;
         m_globalConstsCPU.lights[1].radius = 0.02f;
@@ -166,7 +168,7 @@ bool ExampleApp::Initialize() {
         m_globalConstsCPU.lights[2].type = LIGHT_OFF;
 
                 // 조명 1의 위치와 방향은 Update()에서 설정
-        m_globalConstsCPU.lights[3].radiance = Vector3(5.0f);
+        m_globalConstsCPU.lights[3].radiance = Vector3(2.0f);
         m_globalConstsCPU.lights[3].fallOffEnd = 2000.0f;
         m_globalConstsCPU.lights[3].type =
             LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow
@@ -358,12 +360,32 @@ void ExampleApp::Update(float dt) {
     const Matrix reflectRow = Matrix::CreateReflection(m_mirrorPlane);
     const Matrix viewRow = m_camera.GetViewRow();
     const Matrix projRow = m_camera.GetProjRow();
+
+    m_sun->m_billboardPointsConstsCPU.time += dt;
+    m_sun->UpdateWorldRow(m_sun->m_worldMatrix *
+                          Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.2f, 1.0f),
+                                                      deltaTheta * dt));
+    m_sun->UpdateConstantBuffers(m_device, m_context);
      
+    auto &lightSun = m_globalConstsCPU.lights[LIGHT_SUN];
+
+    
+        
+    Vector4 sunTranslation =
+        Vector4::Transform(m_sun->m_startPoint, m_sun->m_worldMatrix);
+    Vector3 sunPos;
+    sunPos.x = sunTranslation.x;
+    sunPos.y = sunTranslation.y;
+    sunPos.z = sunTranslation.z;
+    lightSun.position = sunPos;
+
+    sunPos.Normalize();
+    lightSun.direction = -sunPos;
     UpdateLights(dt);
 
     // 공용 ConstantBuffer 업데이트
     AppBase::UpdateGlobalConstants(eyeWorld, viewRow, projRow, reflectRow);
-     
+
     // 거울은 따로 처리
     m_mirrorActor->UpdateConstantBuffers(m_device, m_context);
 
@@ -450,12 +472,6 @@ void ExampleApp::Update(float dt) {
     } else {
         m_cursorSphere->m_isVisible = false;
     } 
-      
-    m_sun->m_billboardPointsConstsCPU.time += dt;
-    m_sun
-        ->UpdateWorldRow(m_sun->m_worldMatrix*Matrix::CreateFromAxisAngle(Vector3(1.0f, 1.0f, 1.0f),
-                                                     deltaTheta * dt));
-    m_sun->UpdateConstantBuffers(m_device, m_context);
 
     for (auto &i : m_basicList) {
         i->UpdateConstantBuffers(m_device, m_context);
@@ -846,7 +862,7 @@ bool ExampleApp::InitializeModel() {
     }
     // 바닥
     {
-        auto mesh = GeometryGenerator::MakeSquare(5.0);
+        auto mesh = GeometryGenerator::MakeSquare(20.0);
         // mesh.albedoTextureFilename =
         //     "../Assets/Textures/blender_uv_grid_2k.png";
         m_ground = make_shared<Model>(m_device, m_context, vector{mesh});
@@ -905,10 +921,10 @@ bool ExampleApp::InitializeModel() {
             Vector3(0.0f, 1.0f, 0.0f);
     }
     {
-        float width = 10.f;
+        float width = 5.f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(10.0f, 4.f, 0.f, 1.f)}, width,
+            m_device, m_context, vector{Vector4(20.0f, 10.f, 0.f, 1.f)}, width,
             vector{textureStr});
     }
 
