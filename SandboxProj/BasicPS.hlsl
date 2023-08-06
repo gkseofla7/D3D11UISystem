@@ -173,22 +173,41 @@ void FindBlocker(out float avgBlockerDepthView, out float numBlockers, float2 uv
     
     float searchRadius = lightRadiusUV * (zReceiverView - NEAR_PLANE) / zReceiverView;
 
-    float blockerSum = 0;
-    numBlockers = 0;
-    for (int i = 0; i < 128; ++i)
+
+    if (searchRadius > 0.)
+    {
+        float blockerSum = 0;
+        numBlockers = 0;
+        for (int i = 0; i < 128; ++i)
+        {
+            float shadowMapDepth =
+            shadowMap.SampleLevel(shadowPointSampler, float2(uv + diskSamples128[i] * searchRadius), 0).r;
+
+            shadowMapDepth = N2V(shadowMapDepth, invProj);
+        
+            if (shadowMapDepth < zReceiverView)
+            {
+                blockerSum += shadowMapDepth;
+                numBlockers++;
+            }
+        }
+        avgBlockerDepthView = blockerSum / numBlockers;
+    }
+    else
     {
         float shadowMapDepth =
-            shadowMap.SampleLevel(shadowPointSampler, float2(uv + diskSamples128[i] * searchRadius), 0).r;
+            shadowMap.SampleLevel(shadowPointSampler, float2(uv), 0).r;
 
         shadowMapDepth = N2V(shadowMapDepth, invProj);
         
         if (shadowMapDepth < zReceiverView)
         {
-            blockerSum += shadowMapDepth;
-            numBlockers++;
+            avgBlockerDepthView = shadowMapDepth;
+            numBlockers = 1;
+
         }
     }
-    avgBlockerDepthView = blockerSum / numBlockers;
+    
 }
 
 float PCSS(float2 uv, float zReceiverNdc, Texture2D shadowMap, matrix invProj, float lightRadiusWorld)

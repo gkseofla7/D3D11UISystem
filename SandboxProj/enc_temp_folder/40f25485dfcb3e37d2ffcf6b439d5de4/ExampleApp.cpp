@@ -278,11 +278,6 @@ void ExampleApp::UpdateLights(float dt) {
 
             // 반사된 장면에서도 그림자를 그리고 싶다면 조명도 반사시켜서
             // 넣어주면 됩니다.
-            if (light.type&LIGHT_DIRECTIONAL) {
-                Matrix::CreateOrthographic(,)
-
-                   
-            }
         }
     }
 }
