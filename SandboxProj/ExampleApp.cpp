@@ -173,8 +173,8 @@ bool ExampleApp::Initialize() {
         m_globalConstsCPU.lights[1].spotPower = 3.0f;
         m_globalConstsCPU.lights[3].radius = 0.1f;
         m_globalConstsCPU.lights[3].type =
-            LIGHT_SPOT | LIGHT_SHADOW;    // Point with shadow
-            //LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow
+            //LIGHT_SPOT | LIGHT_SHADOW;    // Point with shadow
+            LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow
     }
      
     // 조명 위치 표시
@@ -247,8 +247,12 @@ void ExampleApp::UpdateLights(float dt) {
             Matrix lightProjRow = XMMatrixPerspectiveFovLH(
                 XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
             if (light.type & LIGHT_DIRECTIONAL) {
+                //Todo 현재 위치를 기준으로 위에서 아래로 찍듯
+                Vector3 lightPos = m_camera.GetEyePos() + Vector3(0.f, 0.f, 5.0f);
+                lightViewRow = XMMatrixLookAtLH(lightPos, lightPos + light.direction, up);
                 lightProjRow =
-                    Matrix::CreateOrthographic(10.0f, 10.0f, 0.1f, 100.0f);
+                    Matrix::CreateOrthographic(2.f, 2.0f, 0.1f, 5.0f);
+
             }
             m_shadowGlobalConstsCPU[i].eyeWorld = light.position;
             m_shadowGlobalConstsCPU[i].view = lightViewRow.Transpose();
@@ -928,10 +932,10 @@ bool ExampleApp::InitializeModel() {
             Vector3(0.0f, 1.0f, 0.0f);
     }
     {  
-        float width = 1.f;
+        float width = 0.5f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(5.0f, 2.5f, 0.f, 1.f)}, width,
+            m_device, m_context, vector{Vector4(2.5f, 1.25f, 0.f, 1.f)}, width,
             vector{textureStr}); 
     }
 
