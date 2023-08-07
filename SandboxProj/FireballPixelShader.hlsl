@@ -89,7 +89,8 @@ PixelShaderOutput main(BillboardPixelShaderInput input)
     // TODO: 
     float currentTime = time;
     
-    float3 eye = eyeWorld;
+    //float3 eye = eyeWorld;
+    float3 eye = float3(0., 0., 0.);
     float3 dir = normalize(input.posWorld.xyz - eye);
     float3 sphere_pos = input.center.xyz;
     float radiusScale = width;

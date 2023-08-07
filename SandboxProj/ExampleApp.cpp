@@ -246,7 +246,10 @@ void ExampleApp::UpdateLights(float dt) {
 
             Matrix lightProjRow = XMMatrixPerspectiveFovLH(
                 XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
-              
+            if (light.type & LIGHT_DIRECTIONAL) {
+                lightProjRow =
+                    Matrix::CreateOrthographic(10.0f, 10.0f, 0.1f, 100.0f);
+            }
             m_shadowGlobalConstsCPU[i].eyeWorld = light.position;
             m_shadowGlobalConstsCPU[i].view = lightViewRow.Transpose();
             m_shadowGlobalConstsCPU[i].proj = lightProjRow.Transpose();
@@ -254,7 +257,6 @@ void ExampleApp::UpdateLights(float dt) {
                 lightProjRow.Invert().Transpose();
             m_shadowGlobalConstsCPU[i].viewProj =
                 (lightViewRow * lightProjRow).Transpose();
-
             // LIGHT_FRUSTUM_WIDTH 확인
             // Vector4 eye(0.0f, 0.0f, 0.0f, 1.0f);
             // Vector4 xLeft(-1.0f, -1.0f, 0.0f, 1.0f);
@@ -278,11 +280,7 @@ void ExampleApp::UpdateLights(float dt) {
 
             // 반사된 장면에서도 그림자를 그리고 싶다면 조명도 반사시켜서
             // 넣어주면 됩니다.
-            if (light.type&LIGHT_DIRECTIONAL) {
-                Matrix::CreateOrthographic(,)
-
-                   
-            }
+        
         }
     }
 }
@@ -568,7 +566,7 @@ void ExampleApp::Render() {
      
     for (auto &i : m_basicList) {
         i->Render(m_context);
-    }
+    }  
 
     //Todo 잠깐 거울은 Pick 못하는걸로 테스트
     PickIndexColorFromRT();
@@ -929,16 +927,16 @@ bool ExampleApp::InitializeModel() {
         m_cursorSphereModel->m_materialConstsCPU.emissionFactor =
             Vector3(0.0f, 1.0f, 0.0f);
     }
-    {
-        float width = 5.f;
+    {  
+        float width = 1.f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(20.0f, 10.f, 0.f, 1.f)}, width,
-            vector{textureStr});
+            m_device, m_context, vector{Vector4(5.0f, 2.5f, 0.f, 1.f)}, width,
+            vector{textureStr}); 
     }
 
     return true;
-}
+} 
 
 bool ExampleApp::InitializeObject() {
     // Object 정의//

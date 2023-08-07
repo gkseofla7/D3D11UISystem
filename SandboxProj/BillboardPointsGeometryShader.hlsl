@@ -45,7 +45,9 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
     
     
     float4 up = float4(0.0, 1.0, 0.0, 0.0);
-    float4 front = float4(eyeWorld, 1.0) - input[0].pos;
+    //항상 태양은 0,0,0을 기준으로 회전한다고 생각
+    float4 front = float4(-input[0].pos.xyz, 0.0); //
+   // float4 front = float4(eyeWorld, 1.0) - input[0].pos;
     front.w = 0.0; // 벡터
     up = normalize(float4(up.xyz - dot(up.xyz, normalize(front.xyz)) * normalize(front.xyz), 0.0));
 
@@ -60,7 +62,9 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
     
     output.posWorld = input[0].pos - hw * right - hw * up;
     output.pos = output.posWorld;
+    output.pos.w = 0.0;
     output.pos = mul(output.pos, view);
+    output.pos.w = 1.0;
     output.pos = mul(output.pos, proj);
     output.texCoord = float2(1.0, 1.0);
     output.primID = primID;
@@ -69,7 +73,9 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
 
     output.posWorld = input[0].pos - hw * right + hw * up;
     output.pos = output.posWorld;
+    output.pos.w = 0.0;
     output.pos = mul(output.pos, view);
+    output.pos.w = 1.0;
     output.pos = mul(output.pos, proj);
     output.texCoord = float2(1.0, 0.0);
     output.primID = primID; // 동일
@@ -78,7 +84,9 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
     
     output.posWorld = input[0].pos + hw * right - hw * up;
     output.pos = output.posWorld;
+    output.pos.w = 0.0;
     output.pos = mul(output.pos, view);
+    output.pos.w = 1.0;
     output.pos = mul(output.pos, proj);
     output.texCoord = float2(0.0, 1.0);
     output.primID = primID; // 동일
@@ -87,7 +95,9 @@ void main(point GeometryShaderInput input[1], uint primID : SV_PrimitiveID,
     
     output.posWorld = input[0].pos + hw * right + hw * up;
     output.pos = output.posWorld;
+    output.pos.w = 0.0;
     output.pos = mul(output.pos, view);
+    output.pos.w = 1.0;
     output.pos = mul(output.pos, proj);
     output.texCoord = float2(0.0, 0.0);
     output.primID = primID; // 동일
