@@ -152,9 +152,9 @@ bool ExampleApp::Initialize() {
         m_globalConstsCPU.lights[0].direction = Vector3(0.0f, -1.0f, 0.0f);
         m_globalConstsCPU.lights[0].spotPower = 3.0f;
         m_globalConstsCPU.lights[0].radius = 0.02f;
-        m_globalConstsCPU.lights[0].type = LIGHT_OFF;
+        m_globalConstsCPU.lights[0].type =LIGHT_OFF;
             LIGHT_SPOT | LIGHT_SHADOW; // Point with shadow
-
+             
         // 조명 1의 위치와 방향은 Update()에서 설정
         //m_globalConstsCPU.lights[1].radiance = Vector3(5.0f);
         m_globalConstsCPU.lights[1].radiance = Vector3(.1f);
@@ -170,8 +170,7 @@ bool ExampleApp::Initialize() {
                 // 조명 1의 위치와 방향은 Update()에서 설정
         m_globalConstsCPU.lights[3].radiance = Vector3(1.0f);
         m_globalConstsCPU.lights[3].fallOffEnd = 2000.0f;
-        m_globalConstsCPU.lights[1].spotPower = 3.0f;
-        m_globalConstsCPU.lights[3].radius = 0.1f;
+        m_globalConstsCPU.lights[3].radius = 0.0f;
         m_globalConstsCPU.lights[3].type =
             //LIGHT_SPOT | LIGHT_SHADOW;    // Point with shadow
             LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow
@@ -231,6 +230,7 @@ void ExampleApp::UpdateLights(float dt) {
         focusPosition - m_globalConstsCPU.lights[1].position;
     m_globalConstsCPU.lights[1].direction.Normalize();
 
+
     // 그림자맵을 만들기 위한 시점
     for (int i = 0; i < MAX_LIGHTS; i++) {
         const auto &light = m_globalConstsCPU.lights[i];
@@ -248,11 +248,12 @@ void ExampleApp::UpdateLights(float dt) {
                 XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
             if (light.type & LIGHT_DIRECTIONAL) {
                 //Todo 현재 위치를 기준으로 위에서 아래로 찍듯
-                Vector3 lightPos = m_camera.GetEyePos() + Vector3(0.f, 0.f, 5.0f);
-                lightViewRow = XMMatrixLookAtLH(lightPos, lightPos + light.direction, up);
+                //Vector3 lightPos = m_sun->;
+                //light.position + light.direction
+                //lightViewRow = XMMatrixLookAtLH(light.position, Vector3(0.0f,0.0f,0.0f), up);
                 lightProjRow =
-                    Matrix::CreateOrthographic(2.f, 2.0f, 0.1f, 5.0f);
-
+                    XMMatrixOrthographicLH(10.0f, 10.0f, 0.1f, 10.0f);
+                  
             }
             m_shadowGlobalConstsCPU[i].eyeWorld = light.position;
             m_shadowGlobalConstsCPU[i].view = lightViewRow.Transpose();
@@ -378,8 +379,6 @@ void ExampleApp::Update(float dt) {
     m_sun->UpdateConstantBuffers(m_device, m_context);
      
     auto &lightSun = m_globalConstsCPU.lights[LIGHT_SUN];
-
-    
         
     Vector4 sunTranslation =
         Vector4::Transform(m_sun->m_startPoint, m_sun->m_worldMatrix);
@@ -391,7 +390,6 @@ void ExampleApp::Update(float dt) {
 
     sunPos.Normalize();
     lightSun.direction = -sunPos;
-    lightSun.radius = 0.3f;
     UpdateLights(dt);
 
     // 공용 ConstantBuffer 업데이트
@@ -521,7 +519,7 @@ void ExampleApp::Render() {
     //
     m_skybox->Render(m_context);
     m_mirrorActor->Render(m_context);
-      
+       
     // 그림자맵 만들기
     AppBase::SetShadowViewport(); // 그림자맵 해상도
     AppBase::SetPipelineState(Graphics::depthOnlyPSO);
@@ -694,8 +692,8 @@ void ExampleApp::PickIndexColorFromRT() {
     memcpy(m_pickColor, ms.pData, sizeof(uint16_t) * 4);
     m_context->Unmap(m_indexStagingBuffer.Get(), NULL);
 } 
- 
-void ExampleApp::UpdateGUI() {
+  
+void ExampleApp::UpdateGUI() { 
 
     ImGui::SetNextItemOpen(false, ImGuiCond_Once);
     if (ImGui::TreeNode("General")) {
@@ -932,10 +930,10 @@ bool ExampleApp::InitializeModel() {
             Vector3(0.0f, 1.0f, 0.0f);
     }
     {  
-        float width = 0.5f;
+        float width = 1.0f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(2.5f, 1.25f, 0.f, 1.f)}, width,
+            m_device, m_context, vector{Vector4(5.f, 2.5f, 0.f, 1.f)}, width,
             vector{textureStr}); 
     }
 
