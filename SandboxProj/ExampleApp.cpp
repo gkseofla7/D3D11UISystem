@@ -379,12 +379,15 @@ void ExampleApp::Update(float dt) {
                           Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.2f, 1.0f),
                                                       deltaTheta * dt));
     m_sun->UpdateConstantBuffers(m_device, m_context);
-     //TODO 태양의 경우엔 내 위치를 중심으로 회전, 빛 위치도 결국 내 위치에서 회전해야됨
     auto &lightSun = m_globalConstsCPU.lights[LIGHT_SUN];
         
     Vector4 sunTranslation =
         Vector4::Transform(m_sun->m_startPoint, m_sun->m_worldMatrix);
-    //sunTranslation = Vector4::Transform(sunTranslation);
+    sunTranslation.w = 0.0f;
+    sunTranslation = Vector4::Transform(sunTranslation, viewRow);
+    //현재 View 기준으로
+    sunTranslation.w = 1.0f;
+    sunTranslation = Vector4::Transform(sunTranslation, viewRow.Invert());
     Vector3 sunPos;
     sunPos.x = sunTranslation.x;
     sunPos.y = sunTranslation.y;
