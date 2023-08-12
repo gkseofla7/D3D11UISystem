@@ -80,6 +80,8 @@ Matrix Camera::GetProjRow() {
                                           m_aspect, m_nearZ, m_farZ)
                : XMMatrixOrthographicOffCenterLH(-m_aspect, m_aspect, -1.0f,
                                                  1.0f, m_nearZ, m_farZ);
+               //: XMMatrixOrthographicOffCenterLH(-m_aspect, m_aspect, -3.0f,
+               //                                  3.0f, m_nearZ, m_farZ);
 }
 
 } // namespace hlab

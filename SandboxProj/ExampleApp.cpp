@@ -239,11 +239,10 @@ void ExampleApp::UpdateLights(float dt) {
             Vector3 up = Vector3(0.0f, 1.0f, 0.0f);
             if (abs(up.Dot(light.direction) + 1.0f) < 1e-5)
                 up = Vector3(1.0f, 0.0f, 0.0f);
-
+             
             // 그림자맵을 만들 때 필요
             Matrix lightViewRow = XMMatrixLookAtLH(
                 light.position, light.position + light.direction, up);
-
             Matrix lightProjRow = XMMatrixPerspectiveFovLH(
                 XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
             if (light.type & LIGHT_DIRECTIONAL) {
@@ -252,7 +251,9 @@ void ExampleApp::UpdateLights(float dt) {
                 //light.position + light.direction
                 //lightViewRow = XMMatrixLookAtLH(light.position, Vector3(0.0f,0.0f,0.0f), up);
                 lightProjRow =
-                    XMMatrixOrthographicLH(10.0f, 10.0f, 0.1f, 10.0f);
+                    //XMMatrixOrthographicOffCenterLH(
+                    //      -5.0f, 5.0f, -5.0f, 5.0f, 0.01f, 10.0f);
+                    XMMatrixOrthographicLH(10.0f, 10.0f, 0.1f, 100.0f);
                   
             }
             m_shadowGlobalConstsCPU[i].eyeWorld = light.position;
@@ -263,15 +264,15 @@ void ExampleApp::UpdateLights(float dt) {
             m_shadowGlobalConstsCPU[i].viewProj =
                 (lightViewRow * lightProjRow).Transpose();
             // LIGHT_FRUSTUM_WIDTH 확인
-            // Vector4 eye(0.0f, 0.0f, 0.0f, 1.0f);
-            // Vector4 xLeft(-1.0f, -1.0f, 0.0f, 1.0f);
-            // Vector4 xRight(1.0f, 1.0f, 0.0f, 1.0f);
-            // eye = Vector4::Transform(eye, lightProjRow);
-            // xLeft = Vector4::Transform(xLeft, lightProjRow.Invert());
-            // xRight = Vector4::Transform(xRight, lightProjRow.Invert());
-            // xLeft /= xLeft.w;
-            // xRight /= xRight.w;
-            // cout << "LIGHT_FRUSTUM_WIDTH = " << xRight.x - xLeft.x << endl;
+             Vector4 eye(0.0f, 0.0f, 0.0f, 1.0f);
+             Vector4 xLeft(-1.0f, -1.0f, 0.0f, 1.0f);
+             Vector4 xRight(1.0f, 1.0f, 0.0f, 1.0f);
+             eye = Vector4::Transform(eye, lightProjRow);
+             xLeft = Vector4::Transform(xLeft, lightProjRow.Invert());
+             xRight = Vector4::Transform(xRight, lightProjRow.Invert());
+             xLeft /= xLeft.w;
+             xRight /= xRight.w;
+             cout << "LIGHT_FRUSTUM_WIDTH = " << xRight.x - xLeft.x << endl;
 
             D3D11Utils::UpdateBuffer(m_device, m_context,
                                      m_shadowGlobalConstsCPU[i],
@@ -373,15 +374,17 @@ void ExampleApp::Update(float dt) {
     const Matrix projRow = m_camera.GetProjRow();
 
     m_sun->m_billboardPointsConstsCPU.time += dt;
+    //TODO 지우기
     m_sun->UpdateWorldRow(m_sun->m_worldMatrix *
                           Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.2f, 1.0f),
                                                       deltaTheta * dt));
     m_sun->UpdateConstantBuffers(m_device, m_context);
-     
+     //TODO 태양의 경우엔 내 위치를 중심으로 회전, 빛 위치도 결국 내 위치에서 회전해야됨
     auto &lightSun = m_globalConstsCPU.lights[LIGHT_SUN];
         
     Vector4 sunTranslation =
         Vector4::Transform(m_sun->m_startPoint, m_sun->m_worldMatrix);
+    //sunTranslation = Vector4::Transform(sunTranslation);
     Vector3 sunPos;
     sunPos.x = sunTranslation.x;
     sunPos.y = sunTranslation.y;
@@ -391,6 +394,11 @@ void ExampleApp::Update(float dt) {
     sunPos.Normalize();
     lightSun.direction = -sunPos;
     UpdateLights(dt);
+
+    //Todo 삭제
+    //m_camera.m_position = sunPos;
+    //m_camera.m_viewDir = lightSun.direction;
+    //lightSun.radius = 1.0f;
 
     // 공용 ConstantBuffer 업데이트
     AppBase::UpdateGlobalConstants(eyeWorld, viewRow, projRow, reflectRow);
@@ -930,10 +938,10 @@ bool ExampleApp::InitializeModel() {
             Vector3(0.0f, 1.0f, 0.0f);
     }
     {  
-        float width = 1.0f;
+        float width = 0.5f;
         std::string textureStr = "../Assets/Textures/shadertoy_fireball.jpg";
         m_sun = make_shared<BillboardPoints>(
-            m_device, m_context, vector{Vector4(5.f, 2.5f, 0.f, 1.f)}, width,
+            m_device, m_context, vector{Vector4(2.5f, 1.25f, 0.f, 1.f)}, width,
             vector{textureStr}); 
     }
 

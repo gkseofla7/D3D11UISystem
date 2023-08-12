@@ -198,10 +198,6 @@ void FindBlocker(out float avgBlockerDepthView, out float numBlockers, float2 uv
         float shadowMapDepth =
             shadowMap.SampleLevel(shadowPointSampler, float2(uv), 0).r;
 
-        if(shadowMapDepth==1.0f)
-        {
-            return;
-        }
         shadowMapDepth = N2V(shadowMapDepth, invProj);
         
         if (shadowMapDepth < zReceiverView)
