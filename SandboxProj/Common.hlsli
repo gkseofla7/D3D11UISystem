@@ -5,6 +5,7 @@
 // Properties -> Item Type: Does not participate in build으로 설정
 
 #define MAX_LIGHTS 4 // 쉐이더에서도 #define 사용 가능
+#define LIGHT_SUN 3
 #define LIGHT_OFF 0x00
 #define LIGHT_DIRECTIONAL 0x01
 #define LIGHT_POINT 0x02

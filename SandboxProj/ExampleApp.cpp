@@ -247,9 +247,6 @@ void ExampleApp::UpdateLights(float dt) {
                 XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
             if (light.type & LIGHT_DIRECTIONAL) {
                 //Todo 현재 위치를 기준으로 위에서 아래로 찍듯
-                //Vector3 lightPos = m_sun->;
-                //light.position + light.direction
-                //lightViewRow = XMMatrixLookAtLH(light.position, Vector3(0.0f,0.0f,0.0f), up);
                 lightProjRow =
                     //XMMatrixOrthographicOffCenterLH(
                     //      -5.0f, 5.0f, -5.0f, 5.0f, 0.01f, 10.0f);
@@ -264,15 +261,15 @@ void ExampleApp::UpdateLights(float dt) {
             m_shadowGlobalConstsCPU[i].viewProj =
                 (lightViewRow * lightProjRow).Transpose();
             // LIGHT_FRUSTUM_WIDTH 확인
-             Vector4 eye(0.0f, 0.0f, 0.0f, 1.0f);
-             Vector4 xLeft(-1.0f, -1.0f, 0.0f, 1.0f);
-             Vector4 xRight(1.0f, 1.0f, 0.0f, 1.0f);
-             eye = Vector4::Transform(eye, lightProjRow);
-             xLeft = Vector4::Transform(xLeft, lightProjRow.Invert());
-             xRight = Vector4::Transform(xRight, lightProjRow.Invert());
-             xLeft /= xLeft.w;
-             xRight /= xRight.w;
-             cout << "LIGHT_FRUSTUM_WIDTH = " << xRight.x - xLeft.x << endl;
+             //Vector4 eye(0.0f, 0.0f, 0.0f, 1.0f);
+             //Vector4 xLeft(-1.0f, -1.0f, 0.0f, 1.0f);
+             //Vector4 xRight(1.0f, 1.0f, 0.0f, 1.0f);
+             //eye = Vector4::Transform(eye, lightProjRow);
+             //xLeft = Vector4::Transform(xLeft, lightProjRow.Invert());
+             //xRight = Vector4::Transform(xRight, lightProjRow.Invert());
+             //xLeft /= xLeft.w;
+             //xRight /= xRight.w;
+             //cout << "LIGHT_FRUSTUM_WIDTH = " << xRight.x - xLeft.x << endl;
 
             D3D11Utils::UpdateBuffer(m_device, m_context,
                                      m_shadowGlobalConstsCPU[i],
@@ -373,29 +370,8 @@ void ExampleApp::Update(float dt) {
     const Matrix viewRow = m_camera.GetViewRow();
     const Matrix projRow = m_camera.GetProjRow();
 
-    m_sun->m_billboardPointsConstsCPU.time += dt;
-    //TODO 지우기
-    m_sun->UpdateWorldRow(m_sun->m_worldMatrix *
-                          Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.2f, 1.0f),
-                                                      deltaTheta * dt));
-    m_sun->UpdateConstantBuffers(m_device, m_context);
-    auto &lightSun = m_globalConstsCPU.lights[LIGHT_SUN];
-        
-    Vector4 sunTranslation =
-        Vector4::Transform(m_sun->m_startPoint, m_sun->m_worldMatrix);
-    sunTranslation.w = 0.0f;
-    sunTranslation = Vector4::Transform(sunTranslation, viewRow);
-    //현재 View 기준으로
-    sunTranslation.w = 1.0f;
-    sunTranslation = Vector4::Transform(sunTranslation, viewRow.Invert());
-    Vector3 sunPos;
-    sunPos.x = sunTranslation.x;
-    sunPos.y = sunTranslation.y;
-    sunPos.z = sunTranslation.z;
-    lightSun.position = sunPos;
+    UpdateSun(dt);
 
-    sunPos.Normalize();
-    lightSun.direction = -sunPos;
     UpdateLights(dt);
 
     //Todo 삭제
@@ -514,7 +490,7 @@ void ExampleApp::Render() {
         m_brdfSRV.Get()};
     m_context->PSSetShaderResources(10, UINT(commonSRVs.size()),
                                     commonSRVs.data());
-
+       
     const float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     vector<ID3D11RenderTargetView *> rtvs = {m_floatRTV.Get(),
                                              m_indexRTV.Get()}; // m_indexRTV
@@ -669,7 +645,7 @@ void ExampleApp::Render() {
     //UI 렌더
     AppBase::SetPipelineState(Graphics::uiPSO);
     m_uiSquare->Render(m_context);
-
+      
     AppBase::SetPipelineState(Graphics::uiButtonPSO);
     for (int i = 0; i < m_uiButtons.size(); i++) {
         m_uiButtons[i]->Render(m_context);
@@ -703,7 +679,7 @@ void ExampleApp::PickIndexColorFromRT() {
     memcpy(m_pickColor, ms.pData, sizeof(uint16_t) * 4);
     m_context->Unmap(m_indexStagingBuffer.Get(), NULL);
 } 
-  
+    
 void ExampleApp::UpdateGUI() { 
 
     ImGui::SetNextItemOpen(false, ImGuiCond_Once);
@@ -1083,6 +1059,62 @@ bool ExampleApp::InitializeUI() {
 
     return true;
 }
+void ExampleApp::UpdateSun(float dt) {
+    static const float deltaTheta = 3.14f / 5.f; // 10초에 한바퀴~
+    const Matrix viewRow = m_camera.GetViewRow();
 
+
+    m_sun->m_billboardPointsConstsCPU.time += dt;
+    // TODO 지우기
+    m_sun->UpdateWorldRow(m_sun->m_worldMatrix *
+                          Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.2f, 1.0f),
+                                                      deltaTheta * dt));
+    m_sun->UpdateConstantBuffers(m_device, m_context);
+    auto &lightSun = m_globalConstsCPU.lights[LIGHT_SUN];
+
+    Vector4 sunTranslation =
+        Vector4::Transform(m_sun->m_startPoint, m_sun->m_worldMatrix);
+    sunTranslation.w = 0.0f;
+    sunTranslation = Vector4::Transform(sunTranslation, viewRow);
+    // 현재 View 기준으로
+    sunTranslation.w = 1.0f;
+    sunTranslation = Vector4::Transform(sunTranslation, viewRow.Invert());
+    Vector3 sunPos;
+    sunPos.x = sunTranslation.x;
+    sunPos.y = sunTranslation.y;
+    sunPos.z = sunTranslation.z;
+    // 태양의 World 위치
+    lightSun.position = sunPos;
+
+    sunPos.Normalize();
+    lightSun.direction = -sunPos;
+    m_sun->m_isVisible = true;
+    if (lightSun.direction.y > -0.4) {
+        float minValue = -0.4;
+        float maxValue = 0.0;
+        float currentValue = lightSun.direction.y;
+
+        if (currentValue > maxValue) {
+            m_globalConstsCPU.strengthIBL = 0.05f;
+            m_sun->m_isVisible = false;
+        } 
+        else {
+            float x1 = minValue;
+            float y1 = 1.0f;
+            float x2 = maxValue;
+            float y2 = 0.05f;
+
+            m_globalConstsCPU.strengthIBL =
+                (y2 - y1) / (x2 - x1) * (currentValue - x1) + y1;
+        }
+    }
+    if (lightSun.direction.y > 0.0f)
+    {
+        lightSun.type = LIGHT_OFF;
+    } 
+    else {
+        lightSun.type = LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow;
+    }
+}
 
 } // namespace hlab

@@ -32,6 +32,7 @@ class ExampleApp : public AppBase {
     virtual void Render() override;
 
     void UpdateLights(float dt);
+    void UpdateSun(float dt);
     void UpdateUIButton();
     void PickIndexColorFromRT();
   protected:

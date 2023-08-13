@@ -27,31 +27,33 @@ void BillboardPoints::UpdateConstantBuffers(
                              m_billboardPointsConstsGPU);
 }
 void BillboardPoints::Render(ComPtr<ID3D11DeviceContext> &context) {
+    if (m_isVisible) {
+        // context->VSSetShader(m_vertexShader.Get(), 0, 0);
+        // context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
+        // context->PSSetShader(m_pixelShader.Get(), 0, 0);
+        context->PSSetShaderResources(0, 1, m_texArraySRV.GetAddressOf());
 
-    //context->VSSetShader(m_vertexShader.Get(), 0, 0);
-    //context->PSSetSamplers(0, 1, m_samplerState.GetAddressOf());
-    //context->PSSetShader(m_pixelShader.Get(), 0, 0);
-    context->PSSetShaderResources(0, 1, m_texArraySRV.GetAddressOf());
+        context->VSSetConstantBuffers(
+            0, 1, m_billboardPointsConstsGPU.GetAddressOf());
+        context->PSSetConstantBuffers(
+            0, 1, m_billboardPointsConstsGPU.GetAddressOf());
+        // Geometry Shader
+        context->GSSetConstantBuffers(
+            0, 1, m_billboardPointsConstsGPU.GetAddressOf());
+        // context->GSSetShader(m_geometryShader.Get(), 0, 0);
 
-    context->VSSetConstantBuffers(0, 1,
-                                  m_billboardPointsConstsGPU.GetAddressOf());
-    context->PSSetConstantBuffers(0, 1,
-                                  m_billboardPointsConstsGPU.GetAddressOf());
-    // Geometry Shader
-    context->GSSetConstantBuffers(0, 1,
-                                  m_billboardPointsConstsGPU.GetAddressOf());
-    //context->GSSetShader(m_geometryShader.Get(), 0, 0);
+        // context->IASetInputLayout(m_inputLayout.Get());
 
-    //context->IASetInputLayout(m_inputLayout.Get());
+        UINT stride = sizeof(Vector4); // sizeof(Vertex);
+        UINT offset = 0;
+        context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(),
+                                    &stride, &offset);
+        // context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-    UINT stride = sizeof(Vector4); // sizeof(Vertex);
-    UINT offset = 0;
-    context->IASetVertexBuffers(0, 1, m_vertexBuffer.GetAddressOf(), &stride,
-                                &offset);
-    //context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
-
-    // POINTLIST는 연결관계가 필요 없기 때문에 DrawIndexed() 대신 Draw() 사용
-    context->Draw(m_indexCount, 0);
+        // POINTLIST는 연결관계가 필요 없기 때문에 DrawIndexed() 대신 Draw()
+        // 사용
+        context->Draw(m_indexCount, 0);
+    }
 }
 
 

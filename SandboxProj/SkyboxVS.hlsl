@@ -8,7 +8,6 @@ struct SkyboxPixelShaderInput
 
 SkyboxPixelShaderInput main(VertexShaderInput input)
 {
-
     SkyboxPixelShaderInput output;
     output.posModel = input.posModel;
     output.posProj = mul(float4(input.posModel, 0.0), view); // È¸Àü¸¸
