@@ -30,6 +30,8 @@ class ExampleApp : public AppBase {
     virtual void UpdateGUI() override;
     virtual void Update(float dt) override;
     virtual void Render() override;
+    virtual LRESULT MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) override;
+
 
     void UpdateLights(float dt);
     void UpdateSun(float dt);

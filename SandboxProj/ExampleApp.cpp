@@ -216,6 +216,14 @@ bool ExampleApp::Initialize() {
     return true;
 }
 
+LRESULT ExampleApp::MsgProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    LRESULT ret = AppBase::MsgProc(hwnd, msg, wParam, lParam);
+
+
+
+    return ret;
+}
+
 void ExampleApp::UpdateLights(float dt) {
 
     // 회전하는 lights[1] 업데이트

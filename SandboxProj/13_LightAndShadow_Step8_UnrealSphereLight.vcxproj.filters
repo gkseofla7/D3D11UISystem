@@ -27,6 +27,9 @@
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BillboardPoints.cpp" />
     <ClCompile Include="Sun.cpp" />
+    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="MoveFrontCommand.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppBase.h" />
@@ -51,6 +54,9 @@
     <ClInclude Include="IndexColorMaker.h" />
     <ClInclude Include="BillboardPoints.h" />
     <ClInclude Include="Sun.h" />
+    <ClInclude Include="Command.h" />
+    <ClInclude Include="MoveFrontCommand.h" />
+    <ClInclude Include="InputHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

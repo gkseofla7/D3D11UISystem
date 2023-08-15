@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="BillboardPoints.cpp" />
+    <ClCompile Include="Command.cpp" />
     <ClCompile Include="D3D11Utils.cpp" />
     <ClCompile Include="DragDropButton.cpp" />
     <ClCompile Include="ExampleApp.cpp" />
@@ -142,11 +143,13 @@
     <ClCompile Include="GraphicsCommon.cpp" />
     <ClCompile Include="GraphicsPSO.cpp" />
     <ClCompile Include="ImageFilter.cpp" />
+    <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AppBase.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="MoveFrontCommand.cpp" />
     <ClCompile Include="MultipleModel.cpp" />
     <ClCompile Include="PostProcess.cpp" />
     <ClCompile Include="Sun.cpp" />
@@ -154,6 +157,7 @@
   <ItemGroup>
     <ClInclude Include="Actor.h" />
     <ClInclude Include="BillboardPoints.h" />
+    <ClInclude Include="Command.h" />
     <ClInclude Include="ConstantBuffers.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="D3D11Utils.h" />
@@ -165,11 +169,13 @@
     <ClInclude Include="GraphicsPSO.h" />
     <ClInclude Include="ImageFilter.h" />
     <ClInclude Include="IndexColorMaker.h" />
+    <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshData.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelInstance.h" />
     <ClInclude Include="ModelLoader.h" />
+    <ClInclude Include="MoveFrontCommand.h" />
     <ClInclude Include="MultipleModel.h" />
     <ClInclude Include="PostProcess.h" />
     <ClInclude Include="Sun.h" />
