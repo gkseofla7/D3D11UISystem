@@ -237,8 +237,7 @@ void AppBase::InitCubemaps(wstring basePath, wstring envFilename,
 // 여러 물체들이 공통적으료 사용하는 Const 업데이트
 void AppBase::UpdateGlobalConstants(const Vector3 &eyeWorld,
                                     const Matrix &viewRow,
-                                    const Matrix &projRow,
-                                    const Matrix &refl = Matrix()) {
+                                    const Matrix &projRow) {
 
     m_globalConstsCPU.eyeWorld = eyeWorld;
     m_globalConstsCPU.view = viewRow.Transpose();
@@ -248,19 +247,10 @@ void AppBase::UpdateGlobalConstants(const Vector3 &eyeWorld,
     // 그림자 렌더링에 사용
     m_globalConstsCPU.invViewProj = m_globalConstsCPU.viewProj.Invert();
 
-    m_reflectGlobalConstsCPU = m_globalConstsCPU;
-    memcpy(&m_reflectGlobalConstsCPU, &m_globalConstsCPU,
-           sizeof(m_globalConstsCPU));
-    m_reflectGlobalConstsCPU.view = (refl * viewRow).Transpose();
-    m_reflectGlobalConstsCPU.viewProj = (refl * viewRow * projRow).Transpose();
-    // 그림자 렌더링에 사용 (TODO: 광원의 위치도 반사시킨 후에 계산해야 함)
-    m_reflectGlobalConstsCPU.invViewProj =
-        m_reflectGlobalConstsCPU.viewProj.Invert();
+    
 
     D3D11Utils::UpdateBuffer(m_device, m_context, m_globalConstsCPU,
                              m_globalConstsGPU);
-    D3D11Utils::UpdateBuffer(m_device, m_context, m_reflectGlobalConstsCPU,
-                             m_reflectGlobalConstsGPU);
 }
 
 void AppBase::SetGlobalConsts(ComPtr<ID3D11Buffer> &globalConstsGPU) {
@@ -457,7 +447,7 @@ bool AppBase::InitMainWindow() {
 
     RECT wr = {0, 0, m_screenWidth, m_screenHeight};
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, false);
-    m_mainWindow = CreateWindow(wc.lpszClassName, L"HongLabGraphics Example",
+    m_mainWindow = CreateWindow(wc.lpszClassName, L"Daerim's Sandbox",
                                 WS_OVERLAPPEDWINDOW,
                                 100, // 윈도우 좌측 상단의 x 좌표
                                 100, // 윈도우 좌측 상단의 y 좌표
@@ -526,8 +516,11 @@ bool AppBase::InitDirect3D() {
     // 공통으로 쓰이는 ConstBuffers
     D3D11Utils::CreateConstBuffer(m_device, m_globalConstsCPU,
                                   m_globalConstsGPU);
-    D3D11Utils::CreateConstBuffer(m_device, m_reflectGlobalConstsCPU,
-                                  m_reflectGlobalConstsGPU);
+
+    for (int i = 0; i<MAX_MIRROR; i++) {
+        D3D11Utils::CreateConstBuffer(m_device, m_reflectGlobalConstsCPU[i],
+                                      m_reflectGlobalConstsGPU[i]);
+    }
 
     // 그림자맵 렌더링할 때 사용할 GlobalConsts들 별도 생성
     for (int i = 0; i < MAX_LIGHTS; i++) {

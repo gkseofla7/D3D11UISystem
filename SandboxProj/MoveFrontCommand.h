@@ -1,7 +1,7 @@
 #pragma once
 #include "Command.h"
 namespace hlab {
-class MoveFrontCommand {
+class MoveFrontCommand :public Command {
 public:
     MoveFrontCommand(shared_ptr<Actor> actor, float x, float y, float z)
       : m_actor(actor), m_x(x), m_y(y), m_z(z) {
@@ -20,11 +20,15 @@ public:
   }
     virtual void undo() {
         Matrix translationMatrix =
-            Matrix::CreateTranslation(Vector3(m_px - m_x, m_py - m_y, m_py- m_z));
+            Matrix::CreateTranslation(Vector3(m_px - m_x, m_py - m_y, m_pz- m_z));
         m_actor->UpdateWorldRow(m_actor->m_worldMatrix * translationMatrix);
     }
 
-
+    virtual void redo() {
+        Matrix translationMatrix = Matrix::CreateTranslation(
+            Vector3(m_x - m_px, m_y - m_py, m_z - m_pz));
+        m_actor->UpdateWorldRow(m_actor->m_worldMatrix * translationMatrix);
+    }
 
 
 

@@ -30,6 +30,7 @@
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="MoveFrontCommand.cpp" />
     <ClCompile Include="InputHandler.cpp" />
+    <ClCompile Include="Mirror.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppBase.h" />
@@ -57,6 +58,7 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="MoveFrontCommand.h" />
     <ClInclude Include="InputHandler.h" />
+    <ClInclude Include="Mirror.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

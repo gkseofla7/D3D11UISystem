@@ -12,7 +12,17 @@
 #include "DragDropButton.h"
 #include "Actor.h"
 #include "BillboardPoints.h"
+#include "InputHandler.h"
+#include "Mirror.h"
 
+
+//TODO
+/*
+*  거울 세계~, 현재 거울을 하나밖에 사용할 수 없는 구조
+* 태양..ㅎ 부드러운 Light, 자연스럽게
+* 커멘드 현재 이동하는걸 변경
+* 
+*/
 
 namespace hlab {
 
@@ -49,14 +59,19 @@ class ExampleApp : public AppBase {
     shared_ptr<Model> m_lightSphereModel;
     
     shared_ptr<Model> m_sphere;
+    shared_ptr<Model> m_box;
     shared_ptr<Model> m_square;
 
     shared_ptr<BillboardPoints> m_sun;
 
     shared_ptr<Actor> m_lightSphere[MAX_LIGHTS];
     shared_ptr<Actor> m_mainActor;
-    shared_ptr<Actor> m_groundActor;
-    shared_ptr<Actor> m_mirrorActor;
+
+    shared_ptr<Mirror> m_groundActor;
+    shared_ptr<Mirror> m_squareActor;
+    
+    vector<shared_ptr<Mirror>> m_mirrorsActor;
+    shared_ptr<Actor> m_mirrorDoor;
     shared_ptr<Actor> m_cursorSphere;
 
     shared_ptr<Actor> m_selectedActor;

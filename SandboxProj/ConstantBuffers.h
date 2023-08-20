@@ -4,6 +4,7 @@
 
 // "Common.hlsli"와 동일해야 함
 #define MAX_LIGHTS 4
+#define MAX_MIRROR 1
 #define LIGHT_SUN 3
 #define LIGHT_OFF 0x00
 #define LIGHT_DIRECTIONAL 0x01

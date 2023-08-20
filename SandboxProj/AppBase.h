@@ -53,7 +53,7 @@ class AppBase {
                       wstring specularFilename, wstring irradianceFilename,
                       wstring brdfFilename);
     void UpdateGlobalConstants(const Vector3 &eyeWorld, const Matrix &viewRow,
-                               const Matrix &projRow, const Matrix &refl);
+                               const Matrix &projRow);
     void SetGlobalConsts(ComPtr<ID3D11Buffer> &globalConstsGPU);
 
 
@@ -144,10 +144,10 @@ class AppBase {
 
     // 다양한 Pass들을 더 간단히 구현하기 위해 ConstBuffer들 분리
     GlobalConstants m_globalConstsCPU;
-    GlobalConstants m_reflectGlobalConstsCPU;
+    GlobalConstants m_reflectGlobalConstsCPU[MAX_MIRROR];
     GlobalConstants m_shadowGlobalConstsCPU[MAX_LIGHTS];
     ComPtr<ID3D11Buffer> m_globalConstsGPU;
-    ComPtr<ID3D11Buffer> m_reflectGlobalConstsGPU;
+    ComPtr<ID3D11Buffer> m_reflectGlobalConstsGPU[MAX_MIRROR];
     ComPtr<ID3D11Buffer> m_shadowGlobalConstsGPU[MAX_LIGHTS];
 
     // 공통으로 사용하는 텍스춰들
