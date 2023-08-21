@@ -299,13 +299,20 @@ float3 LightRadiance(Light light, float3 representativePoint, float3 posWorld, f
 
 PixelShaderOutput main(PixelShaderInput input)
 {
-    float2 uv;
-    uv.x = (input.posProj.x + 1.0) / 2.0;
-    uv.y = ( - input.posProj.y + 1.0) / 2.0;
+    float2 uv = float2(0., 0.);
+    //uv.x = (input.posProj.x + 1.0) / 2.0;
+    //uv.y = (-input.posProj.y + 1.0) / 2.0;
+    uv.x = input.posProj.x/1280.;
+    uv.y = input.posProj.y/720;
 
     float mapDepth =
             depthsMaps.SampleLevel(shadowPointSampler, uv, 0).r;
-    clip(input.posProj.z - mapDepth);
+    float a = 1;
+    a = a + 1;
+    if (input.posProj.z - mapDepth < 0)
+    {
+        clip(-1);
+    }
     
     float3 pixelToEye = normalize(eyeWorld - input.posWorld);
     float3 normalWorld = GetNormal(input);
@@ -323,6 +330,8 @@ PixelShaderOutput main(PixelShaderInput input)
     float3 ambientLighting = AmbientLightingByIBL(albedo, normalWorld, pixelToEye, ao, metallic, roughness) * strengthIBL;
     
     float3 directLighting = float3(0, 0, 0);
+    
+
 
     // 임시로 unroll 사용
     [unroll] // warning X3550: sampler array index must be a literal expression, forcing loop to unroll

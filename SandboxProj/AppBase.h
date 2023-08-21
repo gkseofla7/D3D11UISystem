@@ -111,6 +111,7 @@ class AppBase {
     ComPtr<ID3D11DepthStencilView> m_depthStencilView;
     ComPtr<ID3D11ShaderResourceView> m_depthOnlySRV;
 
+
     // Shadow maps
     int m_shadowWidth = 1280;
     int m_shadowHeight = 1280;

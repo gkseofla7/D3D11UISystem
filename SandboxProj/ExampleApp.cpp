@@ -458,7 +458,7 @@ void ExampleApp::Update(float dt) {
                     m_selectedActor = m_basicList[i];
                     break;
                 }
-            }
+            } 
         }
     } else {
         m_selectedActor.reset();
@@ -540,7 +540,7 @@ void ExampleApp::Render() {
        
     const float clearColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
     vector<ID3D11RenderTargetView *> rtvs = {m_floatRTV.Get(),
-                                             m_indexRTV.Get()}; // m_indexRTV
+                                             m_indexRTV.Get()}; // m_indexRTV  
     // Depth Only Pass (RTS 생략 가능)
     m_context->OMSetRenderTargets(0, NULL, m_depthOnlyDSV.Get());
     m_context->ClearDepthStencilView(m_depthOnlyDSV.Get(), D3D11_CLEAR_DEPTH,
@@ -550,12 +550,15 @@ void ExampleApp::Render() {
       
     for (auto &i : m_basicList)
         i->Render(m_context);
-    //
+    
     m_skybox->Render(m_context);
     for (int i = 0; i < m_mirrorsActor.size(); i++) {
         m_mirrorsActor[i]->Render(m_context);
     }
-       
+    
+
+
+
     // 그림자맵 만들기
     AppBase::SetShadowViewport(); // 그림자맵 해상도
     AppBase::SetPipelineState(Graphics::depthOnlyPSO);
@@ -632,7 +635,7 @@ void ExampleApp::Render() {
                                            : Graphics::skyboxSolidPSO);
 
     m_skybox->Render(m_context);
-
+     
     if (m_mirrorAlpha < 1.0f) { // 거울을 그려야 하는 상황
 
         // 거울 2. 거울 위치만 StencilBuffer에 1로 표기
@@ -641,7 +644,7 @@ void ExampleApp::Render() {
         for (int i = 0; i < m_mirrorsActor.size(); i++) {
             m_mirrorsActor[i]->Render(m_context);
         }
-
+         
         // 거울 3. 거울 위치에 반사된 물체들을 렌더링, 거울 여러개 존재~
         vector<ID3D11ShaderResourceView *> mirrorSRVs;
         mirrorSRVs.push_back(m_depthOnlySRV.Get());
