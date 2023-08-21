@@ -27,6 +27,7 @@ Texture2D brdfTex : register(t13);
 Texture2D shadowMaps[MAX_LIGHTS] : register(t15);
 //Texture2D shadowMap1 : register(t16);
 //Texture2D shadowMap2 : register(t17);
+Texture2D depthsMaps: register(t21);
 
 //static Texture2D shadowMaps[MAX_LIGHTS] = { shadowMap0, shadowMap1, shadowMap2 };
 

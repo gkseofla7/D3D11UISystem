@@ -36,6 +36,7 @@ ComPtr<ID3D11VertexShader> depthOnlyVS;
 ComPtr<ID3D11VertexShader> billboardVS;
 
 ComPtr<ID3D11PixelShader> basicPS;
+ComPtr<ID3D11PixelShader> mirrorPS;
 ComPtr<ID3D11PixelShader> skyboxPS;
 ComPtr<ID3D11PixelShader> combinePS;
 ComPtr<ID3D11PixelShader> bloomDownPS;
@@ -323,6 +324,7 @@ void Graphics::InitShaders(ComPtr<ID3D11Device> &device) {
         billboardIL);
 
     D3D11Utils::CreatePixelShader(device, L"BasicPS.hlsl", basicPS);
+    D3D11Utils::CreatePixelShader(device, L"MirrorPS.hlsl", mirrorPS);
     D3D11Utils::CreatePixelShader(device, L"NormalPS.hlsl", normalPS);
     D3D11Utils::CreatePixelShader(device, L"SkyboxPS.hlsl", skyboxPS);
     D3D11Utils::CreatePixelShader(device, L"CombinePS.hlsl", combinePS);
@@ -360,6 +362,7 @@ void Graphics::InitPipelineStates(ComPtr<ID3D11Device> &device) {
 
     // reflectSolidPSO: 반사되면 Winding 반대
     reflectSolidPSO = defaultSolidPSO;
+    reflectSolidPSO.m_pixelShader = mirrorPS;
     reflectSolidPSO.m_depthStencilState = drawMaskedDSS;
     reflectSolidPSO.m_rasterizerState = solidCCWRS; // 반시계
     reflectSolidPSO.m_stencilRef = 1;

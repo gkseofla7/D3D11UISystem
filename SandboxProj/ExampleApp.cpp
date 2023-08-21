@@ -643,9 +643,13 @@ void ExampleApp::Render() {
         }
 
         // 거울 3. 거울 위치에 반사된 물체들을 렌더링, 거울 여러개 존재~
-        AppBase::SetPipelineState(m_drawAsWire ? Graphics::reflectWirePSO
-                                               : Graphics::reflectSolidPSO);
+        vector<ID3D11ShaderResourceView *> mirrorSRVs;
+        mirrorSRVs.push_back(m_depthOnlySRV.Get());
+        m_context->PSSetShaderResources(21, UINT(mirrorSRVs.size()),
+                                        mirrorSRVs.data());
         for (int i = 0; i<MAX_MIRROR; i++) {
+            AppBase::SetPipelineState(m_drawAsWire ? Graphics::reflectWirePSO
+                                                   : Graphics::reflectSolidPSO);
             AppBase::SetGlobalConsts(m_reflectGlobalConstsGPU[i]);
 
             m_context->ClearDepthStencilView(m_depthStencilView.Get(),
@@ -1032,7 +1036,7 @@ bool ExampleApp::InitializeObject() {
     {
         m_squareActor = make_shared<Mirror>(m_device, m_context, m_square);
         Vector3 position = Vector3(0.5f, 0.25f, 2.0f);
-        Vector3 upVector = Vector3(0.0f, 0.0f, 1.0f);
+        Vector3 upVector = Vector3(0.0f, 0.0, 1.0f);
         //upVector = Vector3::Transform(
         //    upVector, Matrix::CreateRotationY(3.141592f * 0.5f));
 
