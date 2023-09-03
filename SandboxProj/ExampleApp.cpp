@@ -160,23 +160,24 @@ bool ExampleApp::Initialize() {
              
         // 조명 1의 위치와 방향은 Update()에서 설정
         //m_globalConstsCPU.lights[1].radiance = Vector3(5.0f);
-        m_globalConstsCPU.lights[1].radiance = Vector3(.1f);
+        m_globalConstsCPU.lights[1].radiance = Vector3(1.f);
         m_globalConstsCPU.lights[1].spotPower = 3.0f;
         m_globalConstsCPU.lights[1].fallOffEnd = 20.0f;
         m_globalConstsCPU.lights[1].radius = 0.02f;
-        m_globalConstsCPU.lights[1].type = LIGHT_OFF;
+        m_globalConstsCPU.lights[1].type = //LIGHT_OFF;
             LIGHT_SPOT | LIGHT_SHADOW; // Point with shadow
          
         // 조명 2는 꺼놓음
         m_globalConstsCPU.lights[2].type = LIGHT_OFF;
 
                 // 조명 1의 위치와 방향은 Update()에서 설정
-        m_globalConstsCPU.lights[3].radiance = Vector3(1.0f);
-        m_globalConstsCPU.lights[3].fallOffEnd = 2000.0f;
+        m_globalConstsCPU.lights[3].radiance = Vector3(1.f);
+        m_globalConstsCPU.lights[3].spotPower = 3.0f;
+        m_globalConstsCPU.lights[3].fallOffEnd = 20.0f;
         m_globalConstsCPU.lights[3].radius = 0.02f;
-        m_globalConstsCPU.lights[3].type =
+        m_globalConstsCPU.lights[3].type = LIGHT_OFF;
             //LIGHT_SPOT | LIGHT_SHADOW;    // Point with shadow
-            LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow
+            LIGHT_SPOT | LIGHT_SHADOW; // Point with shadow
     }
      
     // 조명 위치 표시
@@ -250,12 +251,12 @@ void ExampleApp::UpdateLights(float dt) {
         lightDev = Vector3::Transform(
             lightDev, Matrix::CreateRotationY(dt * 3.141592f * 0.5f));
     }
-    m_globalConstsCPU.lights[1].position = Vector3(0.0f, 1.1f, 2.0f) + lightDev;
-    Vector3 focusPosition = Vector3(0.0f, -0.5f, 1.7f);
+    m_globalConstsCPU.lights[1].position =
+        Vector3(0.0f, 0.0f, -1.0f); //+ lightDev;
+    Vector3 focusPosition = Vector3(0.0f, 0.0f, 0.f);
     m_globalConstsCPU.lights[1].direction =
         focusPosition - m_globalConstsCPU.lights[1].position;
     m_globalConstsCPU.lights[1].direction.Normalize();
-
 
     // 그림자맵을 만들기 위한 시점
     for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -270,7 +271,7 @@ void ExampleApp::UpdateLights(float dt) {
             Matrix lightViewRow = XMMatrixLookAtLH(
                 light.position, light.position + light.direction, up);
             Matrix lightProjRow = XMMatrixPerspectiveFovLH(
-                XMConvertToRadians(120.0f), 1.0f, 0.1f, 10.0f);
+                XMConvertToRadians(120.0f), 1.0f, 0.1f, 20.0f);
             if (light.type & LIGHT_DIRECTIONAL) {
                 //Todo 현재 위치를 기준으로 위에서 아래로 찍듯
                 lightProjRow =
@@ -300,7 +301,7 @@ void ExampleApp::UpdateLights(float dt) {
             D3D11Utils::UpdateBuffer(m_device, m_context,
                                      m_shadowGlobalConstsCPU[i],
                                      m_shadowGlobalConstsGPU[i]);
-
+             
             // 그림자를 실제로 렌더링할 때 필요
             m_globalConstsCPU.lights[i].viewProj =
                 m_shadowGlobalConstsCPU[i].viewProj;
@@ -400,6 +401,9 @@ void ExampleApp::Update(float dt) {
 
     UpdateLights(dt);
 
+    m_marioActor->m_actorConstsCPU.time += dt;
+    m_marioActor->UpdateConstantBuffers(m_device, m_context);
+
     //Todo 삭제
     //m_camera.m_position = sunPos;
     //m_camera.m_viewDir = lightSun.direction;
@@ -426,7 +430,7 @@ void ExampleApp::Update(float dt) {
                                  m_reflectGlobalConstsGPU[i]);
     }
 
-
+     
     // 거울은 따로 처리
     for (int i = 0; i < m_mirrorsActor.size() ;i++) {
         m_mirrorsActor[i]->UpdateConstantBuffers(m_device, m_context);
@@ -511,7 +515,7 @@ void ExampleApp::Update(float dt) {
                     } 
                 } 
             }
-        } 
+        }  
     } else {
         m_cursorSphere->m_isVisible = false;
     } 
@@ -520,6 +524,8 @@ void ExampleApp::Update(float dt) {
         i->UpdateConstantBuffers(m_device, m_context);
     }
    
+    D3D11Utils ::UpdateBuffer(m_device, m_context, m_globalConstsCPU,
+                             m_globalConstsGPU);
 } 
  
 void ExampleApp::Render() {
@@ -554,11 +560,9 @@ void ExampleApp::Render() {
     m_skybox->Render(m_context);
     for (int i = 0; i < m_mirrorsActor.size(); i++) {
         m_mirrorsActor[i]->Render(m_context);
-    }
-    
-
-
-
+    } 
+      
+     
     // 그림자맵 만들기
     AppBase::SetShadowViewport(); // 그림자맵 해상도
     AppBase::SetPipelineState(Graphics::depthOnlyPSO);
@@ -619,11 +623,13 @@ void ExampleApp::Render() {
         for (int i = 0; i < m_mirrorsActor.size(); i++) {
             m_mirrorsActor[i]->Render(m_context);
         }
-    }
-
+    } 
+    //추가 예외 케이스들 여기서 Render
     AppBase::SetPipelineState(Graphics::fireballPSO);  
     m_sun->Render(m_context);
-
+     
+    AppBase::SetPipelineState(Graphics::marioPSO);
+    m_marioActor->Render(m_context);
 
     AppBase::SetPipelineState(Graphics::normalsPSO);
     for (auto &i : m_basicList) {
@@ -1052,6 +1058,17 @@ bool ExampleApp::InitializeObject() {
 
     }
     {
+        m_marioActor = make_shared<Mirror>(m_device, m_context, m_square);
+        Vector3 position = Vector3(1.5f, 0.25f, 2.0f);
+        Vector3 upVector = Vector3(0.0f, 0.0, 1.0f);
+        // upVector = Vector3::Transform(
+        //     upVector, Matrix::CreateRotationY(3.141592f * 0.5f));
+
+        m_marioActor->UpdateWorldRow(
+            Matrix::CreateTranslation(position));
+        
+    }
+    {
         auto obj = make_shared<Actor>(m_device, m_context, m_sphere);
         Vector3 center(0.5f, 0.5f, 2.0f);
         obj->UpdateWorldRow(Matrix::CreateTranslation(center));
@@ -1210,7 +1227,7 @@ void ExampleApp::UpdateSun(float dt) {
         lightSun.type = LIGHT_OFF;
     } 
     else {
-        lightSun.type = LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow;
+        //lightSun.type = LIGHT_DIRECTIONAL | LIGHT_SHADOW; // Point with shadow;
     }
 }
 

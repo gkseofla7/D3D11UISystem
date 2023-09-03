@@ -35,7 +35,7 @@ __declspec(align(256)) struct ActorConstants {
     Matrix world;
     Matrix worldIT;
     Vector3 indexColor;
-    float dummy = 0.f;
+    float time = 0.f;
 };
 
 // 주로 Pixel 쉐이더에서 사용

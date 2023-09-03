@@ -47,6 +47,7 @@ ComPtr<ID3D11PixelShader> postEffectsPS;
 ComPtr<ID3D11PixelShader> samplingPS;
 ComPtr<ID3D11PixelShader> billboardPS;
 ComPtr<ID3D11PixelShader> fireballPS;
+ComPtr<ID3D11PixelShader> marioPS;
 ;
 
 
@@ -79,6 +80,7 @@ GraphicsPSO postProcessingPSO;
 GraphicsPSO uiPSO;
 GraphicsPSO uiButtonPSO;
 GraphicsPSO fireballPSO;
+GraphicsPSO marioPSO;
 
 } // namespace Graphics
 
@@ -335,6 +337,7 @@ void Graphics::InitShaders(ComPtr<ID3D11Device> &device) {
     D3D11Utils::CreatePixelShader(device, L"SamplingPS.hlsl", samplingPS);
     D3D11Utils::CreatePixelShader(device, L"BillboardPointsPixelShader.hlsl", billboardPS);
     D3D11Utils::CreatePixelShader(device, L"FireballPixelShader.hlsl", fireballPS);
+    D3D11Utils::CreatePixelShader(device, L"ShaderToyPractice.hlsl", marioPS);
 
     D3D11Utils::CreateGeometryShader(device, L"NormalGS.hlsl", normalGS);
     D3D11Utils::CreateGeometryShader(device, L"BillboardPointsGeometryShader.hlsl", billboardGS);
@@ -446,6 +449,11 @@ void Graphics::InitPipelineStates(ComPtr<ID3D11Device> &device) {
     fireballPSO.m_pixelShader = fireballPS;
     fireballPSO.m_rasterizerState = solidCCWRS;
     fireballPSO.m_primitiveTopology = D3D11_PRIMITIVE_TOPOLOGY_POINTLIST;
+
+
+        // fireball PSO
+    marioPSO = defaultSolidPSO;
+    marioPSO.m_pixelShader = marioPS;
 }
 
 } // namespace hlab

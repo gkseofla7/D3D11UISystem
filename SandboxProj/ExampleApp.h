@@ -69,6 +69,9 @@ class ExampleApp : public AppBase {
 
     shared_ptr<Mirror> m_groundActor;
     shared_ptr<Mirror> m_squareActor;
+
+
+    shared_ptr<Actor> m_marioActor;
     
     vector<shared_ptr<Mirror>> m_mirrorsActor;
     shared_ptr<Actor> m_mirrorDoor;
@@ -97,7 +100,7 @@ class ExampleApp : public AppBase {
     float m_uiMaxY = 0.f;
     float m_uiMinY = 0.f;
     int m_selectButtonIndex = -1;
-
+     
     uint16_t m_pickColor[4] = {} ;
 };
 

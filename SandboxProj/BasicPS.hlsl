@@ -160,6 +160,7 @@ float PCF_Filter(float2 uv, float zReceiverNdc, float filterRadiusUV, Texture2D 
         float2 offset = diskSamples128[i] * filterRadiusUV;
         sum += shadowMap.SampleCmpLevelZero(
             shadowCompareSampler, uv + offset, zReceiverNdc);
+
     }
     return sum / 128;
 }
@@ -172,8 +173,6 @@ void FindBlocker(out float avgBlockerDepthView, out float numBlockers, float2 uv
     float lightRadiusUV = lightRadiusWorld / LIGHT_FRUSTUM_WIDTH;
     
     float searchRadius = lightRadiusUV * (zReceiverView - NEAR_PLANE) / zReceiverView;
-
-
     if (searchRadius > 0.)
     {
         float blockerSum = 0;
@@ -233,10 +232,6 @@ float PCSS(float2 uv, float zReceiverNdc, Texture2D shadowMap, matrix invProj, f
         float penumbraRatio = (zReceiverView - avgBlockerDepthView) / avgBlockerDepthView;
         float filterRadiusUV = penumbraRatio * lightRadiusUV * NEAR_PLANE / zReceiverView;
 
-        if (lightRadiusWorld == 0.0)
-        {
-            return 0.;
-        }
         // STEP 3: filtering
         return PCF_Filter(uv, zReceiverNdc, filterRadiusUV, shadowMap);
     }

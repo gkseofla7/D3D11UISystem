@@ -17,7 +17,7 @@ cbuffer ActorConstants : register(b10)
     matrix world; // Model(또는 Object) 좌표계 -> World로 변환
     matrix worldIT;
     float3 indexColor;
-    float dummy3;
+    float time;
 };
 
 PixelShaderInput main(VertexShaderInput input)

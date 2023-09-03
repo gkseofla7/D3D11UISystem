@@ -303,13 +303,11 @@ PixelShaderOutput main(PixelShaderInput input)
     //uv.x = (input.posProj.x + 1.0) / 2.0;
     //uv.y = (-input.posProj.y + 1.0) / 2.0;
     uv.x = input.posProj.x/1280.;
-    uv.y = input.posProj.y/720;
+    uv.y = input.posProj.y/720.;
 
     float mapDepth =
             depthsMaps.SampleLevel(shadowPointSampler, uv, 0).r;
-    float a = 1;
-    a = a + 1;
-    if (input.posProj.z - mapDepth < 0)
+    if (input.posProj.z - mapDepth < 0.0001)//더 뒤에 있으면
     {
         clip(-1);
     }

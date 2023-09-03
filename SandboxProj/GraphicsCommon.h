@@ -78,6 +78,7 @@ extern GraphicsPSO postProcessingPSO;
 extern GraphicsPSO uiPSO;
 extern GraphicsPSO uiButtonPSO;
 extern GraphicsPSO fireballPSO;
+extern GraphicsPSO marioPSO;
 
 void InitCommonStates(ComPtr<ID3D11Device> &device);
 
