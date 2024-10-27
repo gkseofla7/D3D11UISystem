@@ -1,6 +1,6 @@
-# DirectXSandbox
+# DirectXUISystem
 
-https://github.com/gkseofla7/DirectXSandbox/assets/80966861/ec3a873e-e065-43a8-8b63-52d49abef6e6
+https://github.com/user-attachments/assets/21374ab7-5b82-4245-b8fa-ff52d0fd9ca9
 
 # 물체 Pick 시스템
 - RayCasting을 쏴주지 않고 구현하였다.
